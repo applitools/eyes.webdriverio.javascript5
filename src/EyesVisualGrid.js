@@ -13,7 +13,7 @@ const {
   TypeUtils
 } = require('@applitools/eyes-sdk-core');
 
-const {BrowserType, Configuration, RectangleSize} = require('@applitools/eyes-selenium');
+const {BrowserType, RectangleSize, Configuration} = require('@applitools/eyes-selenium');
 
 const EyesWebDriver = require('./wrappers/EyesWebDriver');
 const EyesWDIOUtils = require('./EyesWDIOUtils');
@@ -58,7 +58,7 @@ class EyesVisualGrid extends EyesBase {
    * @param {object} driver The web driver that controls the browser hosting the application under test.
    * @param {Configuration|string} optArg1 The Configuration for the test or the name of the application under the test.
    * @param {string} [optArg2] The test name.
-   * @param {RectangleSize|object} [optArg3] The required browser's viewport size
+   * @param {RectangleSize|RectangleSizeObject} [optArg3] The required browser's viewport size
    *   (i.e., the visible part of the document's body) or to use the current window's viewport.
    * @param {Configuration} [optArg4] The Configuration for the test
    * @return {Promise<EyesWebDriver>} A wrapped WebDriver which enables Eyes trigger recording and frame handling.
@@ -134,7 +134,7 @@ class EyesVisualGrid extends EyesBase {
       compareWithParentBranch: this._configuration.getCompareWithParentBranch(),
       ignoreBaseline: this._configuration.getIgnoreBaseline(),
       parentBranchName: this._configuration.getParentBranchName(),
-      agentId: this.getFullAgentId(),
+      agentId: this._configuration.getAgentId(),
       isDisabled: this._configuration.getIsDisabled(),
       matchTimeout: this._configuration.getMatchTimeout(),
 
@@ -234,7 +234,7 @@ class EyesVisualGrid extends EyesBase {
    * @param {boolean} [throwEx]
    * @return {Promise<void>}
    */
-  async closeAndPrintResults(throwEx = true) {
+  async closeAndPrintResults(throwEx = false) {
     const results = await this.closeAndReturnResults(throwEx);
 
     const testResultsFormatter = new TestResultsFormatter(results);
@@ -354,6 +354,26 @@ class EyesVisualGrid extends EyesBase {
     }
   }
 
+  async addMouseTrigger(action, control, cursor) {
+    if (this._configuration.getIsDisabled()) {
+      this._logger.verbose(`Ignoring ${action} (disabled)`);
+      return;
+    }
+
+    // Triggers are actually performed on the previous window.
+    if (!this._lastScreenshot) {
+      this._logger.verbose(`Ignoring ${action} (no screenshot)`);
+      return;
+    }
+
+    if (!FrameChain.isSameFrameChain(this._driver.getFrameChain(), this._lastScreenshot.getFrameChain())) {
+      this._logger.verbose(`Ignoring ${action} (different frame)`);
+      return;
+    }
+
+    EyesBase.prototype.addMouseTriggerBase.call(this, action, control, cursor);
+  }
+
   // noinspection JSUnusedGlobalSymbols
   /**
    * @return {boolean}
@@ -421,7 +441,7 @@ class EyesVisualGrid extends EyesBase {
       conf = new Configuration(conf);
     }
 
-    this._configuration = conf;
+    this._configuration.mergeConfig(conf);
   }
 
   /**

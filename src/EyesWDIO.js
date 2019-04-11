@@ -1,6 +1,7 @@
 'use strict';
 
 const {
+  Configuration,
   ContextBasedScaleProviderFactory,
   CoordinatesType,
   EyesBase,
@@ -24,7 +25,6 @@ const {
 } = require('@applitools/eyes-sdk-core');
 
 const {DomCapture} = require('@applitools/dom-utils');
-const {Configuration} = require('@applitools/eyes-selenium');
 
 const ImageProviderFactory = require('./capture/ImageProviderFactory');
 const CssTranslatePositionProvider = require('./positioning/CssTranslatePositionProvider');
@@ -153,6 +153,10 @@ class EyesWDIO extends EyesBase {
       this._configuration.setViewportSize(TypeUtils.getOrDefault(varArg3, this._configuration.getViewportSize()));
       this._configuration.setSessionType(TypeUtils.getOrDefault(varArg4, this._configuration.getSessionType()));
     }
+
+    ArgumentGuard.notNull(this._configuration.getAppName(), 'appName');
+    ArgumentGuard.notNull(this._configuration.getTestName(), 'testName');
+
     if (!this._configuration.getViewportSize()) {
       const vs = await this._driver.getDefaultContentViewportSize();
       this._configuration.setViewportSize(vs);
@@ -1352,7 +1356,7 @@ class EyesWDIO extends EyesBase {
       return undefined;
     }
 
-    return this.getRemoteWebDriver().requestHandler.sessionID;
+    return this.getRemoteWebDriver().sessionId;
   };
 
 
