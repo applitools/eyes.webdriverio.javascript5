@@ -1,7 +1,8 @@
 'use strict';
 
 const chromedriver = require('chromedriver');
-const webdriverio = require('webdriverio');
+const {remote} = require('webdriverio');
+const {equal} = require('assert');
 const {BatchInfo, Region, CorsIframeHandle} = require('@applitools/eyes-sdk-core');
 const {BrowserType, Configuration} = require('@applitools/eyes-selenium');
 const {Eyes, Target, VisualGridRunner} = require('../index');
@@ -10,7 +11,6 @@ const Common = require('./Common');
 
 let browser;
 
-
 describe('VisualGridSimple', function () {
   this.timeout(5 * 60 * 1000);
 
@@ -18,10 +18,13 @@ describe('VisualGridSimple', function () {
     chromedriver.start();
   });
 
-  beforeEach(function () {
+  beforeEach(async () => {
     const chrome = Common.CHROME;
-    browser = webdriverio.remote(chrome);
-    return browser.init();
+    browser = await remote(chrome);
+  });
+
+  afterEach(async () => {
+    await browser.deleteSession();
   });
 
   after(async function () {
@@ -41,7 +44,7 @@ describe('VisualGridSimple', function () {
     configuration.addBrowser(800, 600, BrowserType.CHROME);
     configuration.addBrowser(700, 500, BrowserType.CHROME);
     configuration.addBrowser(400, 300, BrowserType.CHROME);
-
+    configuration.setApiKey(process.env.APPLITOOLS_API_KEY);
     eyes.setConfiguration(configuration);
     await eyes.open(browser);
 
@@ -51,9 +54,9 @@ describe('VisualGridSimple', function () {
 
     await eyes.check('selector', Target.region('#scroll1'));
 
-    await eyes.getRunner().getAllResults(false);
+    const result = await eyes.close(false);
 
-    await browser.end();
+    equal(result.isPassed(), true);
   });
 
 });

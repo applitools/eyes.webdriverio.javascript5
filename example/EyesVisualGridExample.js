@@ -1,7 +1,7 @@
 'use strict';
 
 const chromedriver = require('chromedriver');
-const webdriverio = require('webdriverio');
+const {remote} = require('webdriverio');
 const {By, Eyes, Target, VisualGridRunner} = require('../index'); // should be replaced to '@applitools/eyes.webdriverio'
 const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@applitools/eyes-selenium');
 
@@ -10,24 +10,23 @@ const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@ap
 
   // Open a Chrome browser.
   const chrome = {
-    desiredCapabilities: {
+    capabilities: {
       browserName: 'chrome'
     }
   };
-  let driver = webdriverio.remote(chrome);
-  await driver.init();
+  let driver = await remote(chrome);
 
-  // Initialize the eyes SDK
+  // Initialize the eyes SDK and set your private API key.
   const eyes = new Eyes(new VisualGridRunner(3));
 
   try {
     const configuration = new Configuration();
     configuration.setAppName('Eyes Examples');
     configuration.setTestName('My first Javascript test!');
-    configuration.addBrowser(800, 600, BrowserType.CHROME);
-    configuration.addBrowser(500, 400, BrowserType.FIREFOX);
+    configuration.addBrowser(500, 400, BrowserType.CHROME);
+    configuration.addBrowser(400, 300, BrowserType.FIREFOX);
     configuration.addDeviceEmulation(DeviceName.iPhone_4, ScreenOrientation.PORTRAIT);
-    // set your private API key
+    // eyes.setApiKey('Your API Key');
     configuration.setApiKey(process.env.APPLITOOLS_API_KEY);
     eyes.setConfiguration(configuration);
 
@@ -40,7 +39,8 @@ const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@ap
     await eyes.check('Main Page', Target.window());
 
     // Click the "Click me!" button.
-    await driver.click(By.cssSelector('button'));
+    const el = await driver.findElement(By.css('button'));
+    await el.click();
 
     // Visual checkpoint #2.
     await eyes.check('Click!', Target.window());
@@ -49,13 +49,15 @@ const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@ap
     // const results = await eyes.close(); // will return only first TestResults, but as we have two browsers, we need more results
     const results = await eyes.getRunner().getAllResults(false);
     console.log(results);
+  } catch (e) {
+    console.log(e);
   } finally {
     // Close the browser.
-    await driver.end();
+    await driver.deleteSession();
 
     // If the test was aborted before eyes.close was called ends the test as aborted.
     await eyes.abortIfNotClosed();
 
-    chromedriver.stop();
+    await chromedriver.stop();
   }
 })();

@@ -1,7 +1,7 @@
 'use strict';
 
 const {CheckSettings, Region, TypeUtils} = require('@applitools/eyes-sdk-core');
-const By = require('../By');
+const {By} = require('selenium-webdriver');
 const WebElement = require('../wrappers/WebElement');
 const FrameLocator = require('./FrameLocator');
 const IgnoreRegionBySelector = require('./IgnoreRegionBySelector');
@@ -52,7 +52,7 @@ class WebdriverioCheckSettings extends CheckSettings {
     } else if (region instanceof WebElement) {
       this._targetElement = region;
     } else if (TypeUtils.isString(region)) {
-      this._targetSelector = By.cssSelector(region);
+      this._targetSelector = By.css(region);
     } else {
       throw new TypeError("region method called with argument of unknown type!");
     }
