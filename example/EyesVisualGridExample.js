@@ -23,8 +23,9 @@ const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@ap
     const configuration = new Configuration();
     configuration.setAppName('Eyes Examples');
     configuration.setTestName('My first Javascript test!');
-    configuration.addBrowser(500, 400, BrowserType.CHROME);
-    configuration.addBrowser(400, 300, BrowserType.FIREFOX);
+    configuration.addBrowser(800, 600, BrowserType.CHROME);
+    configuration.addBrowser(500, 400, BrowserType.FIREFOX);
+    configuration.addBrowser(500, 400, BrowserType.IE_11);
     configuration.addDeviceEmulation(DeviceName.iPhone_4, ScreenOrientation.PORTRAIT);
     // eyes.setApiKey('Your API Key');
     configuration.setApiKey(process.env.APPLITOOLS_API_KEY);
