@@ -2,8 +2,8 @@
 
 const chromedriver = require('chromedriver');
 const {remote} = require('webdriverio');
-const {By, Eyes, Target, VisualGridRunner} = require('../index'); // should be replaced to '@applitools/eyes.webdriverio'
-const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@applitools/eyes-selenium');
+const {By, Eyes, Target, VisualGridRunner, Configuration} = require('../index'); // should be replaced to '@applitools/eyes-webdriverio'
+const {BrowserType, DeviceName, ScreenOrientation} = require('@applitools/eyes-selenium');
 
 (async () => {
   chromedriver.start();
