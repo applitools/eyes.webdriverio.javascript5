@@ -842,7 +842,7 @@ class EyesWDIO extends EyesBase {
       return Promise.resolve();
     }
 
-    if (EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
+    if (!EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
       ArgumentGuard.notNull(viewportSize, 'viewportSize');
       viewportSize = new RectangleSize(viewportSize);
 
