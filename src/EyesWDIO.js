@@ -1288,7 +1288,7 @@ class EyesWDIO extends EyesBase {
 
           if (platformName) {
             let os = platformName;
-            let platformVersion = '';
+            let platformVersion;
             if (that.getDriver().remoteWebDriver.capabilities) {
               platformVersion = that.getDriver().remoteWebDriver.capabilities.platformVersion;
             } else if (that.getDriver().remoteWebDriver.desiredCapabilities) {
