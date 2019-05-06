@@ -69,7 +69,7 @@ class Common {
     this._eyes.setLogHandler(new ConsoleLogHandler(true));
 
     this._eyes.setForceFullPageScreenshot(fps);
-    this._eyes.setStitchMode(stitchMode);
+    this._eyes._configuration.setStitchMode(stitchMode);
     this._eyes.setHideScrollbars(true);
 
     const proxy = TypeUtils.getOrDefault(process.env.APPLITOOLS_PROXY, null);
