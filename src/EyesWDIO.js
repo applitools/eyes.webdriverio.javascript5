@@ -1581,7 +1581,7 @@ class EyesWDIO extends EyesBase {
    * @return {boolean}
    */
   getSendDom() {
-    return EyesWDIOUtils.isMobileDevice(this._driver) && super.getSendDom();
+    return !EyesWDIOUtils.isMobileDevice(this._driver) && super.getSendDom();
   }
 
 }
