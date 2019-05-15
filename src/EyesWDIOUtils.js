@@ -464,8 +464,6 @@ class EyesWDIOUtils {
           height = temp;
         }
       } catch (ignored) {
-        // todo
-        console.log(ignored);
         // Not every WebDriver supports querying for orientation.
       }
 
