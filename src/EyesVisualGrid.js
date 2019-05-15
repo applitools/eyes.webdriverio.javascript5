@@ -6,12 +6,13 @@ const {getProcessPageAndSerializeScript} = require('@applitools/dom-snapshot');
 const {
   ArgumentGuard,
   EyesBase,
-  TestFailedError,
   TestResultsFormatter,
   CorsIframeHandle,
   CorsIframeHandler,
   TypeUtils
 } = require('@applitools/eyes-sdk-core');
+
+const {TestResultSummary} = require('./visualgrid/TestResultSummary');
 
 const {BrowserType, RectangleSize, Configuration} = require('@applitools/eyes-selenium');
 
@@ -40,6 +41,7 @@ class EyesVisualGrid extends EyesBase {
     super(serverUrl, isDisabled, new Configuration());
 
     /** @type {VisualGridRunner} */ this._visualGridRunner = visualGridRunner;
+    this._visualGridRunner._eyesInstances.push(this);
 
     /** @type {boolean} */ this._isOpen = false;
     /** @type {boolean} */ this._isVisualGrid = true;
@@ -49,6 +51,7 @@ class EyesVisualGrid extends EyesBase {
 
     this._checkWindowCommand = undefined;
     this._closeCommand = undefined;
+    /** @type {Promise} */ this._closePromise = undefined;
   }
 
   /**
@@ -151,9 +154,18 @@ class EyesVisualGrid extends EyesBase {
       // eyesTransactionThroat,
     });
 
-    this._checkWindowCommand = checkWindow;
-    this._closeCommand = close;
     this._isOpen = true;
+
+    this._checkWindowCommand = checkWindow;
+    this._closeCommand = async () => {
+      return close(true).catch(err => {
+        if (Array.isArray(err)) {
+          return err;
+        }
+
+        throw err;
+      });
+    };
 
     return this._driver;
   }
@@ -172,35 +184,53 @@ class EyesVisualGrid extends EyesBase {
   }
 
   /**
+   * @param {boolean} [throwEx=true]
+   * @return {Promise<TestResults>}
+   */
+  async closeAndReturnResults(throwEx = true) {
+    try {
+      let resultsPromise = this._closePromise || this._closeCommand();
+      const res = await resultsPromise;
+      const testResultSummary = new TestResultSummary(res);
+
+      if (throwEx === true) {
+        for (const result of testResultSummary.getAllResults()) {
+          if (result.getException()) {
+            throw result.getException();
+          }
+        }
+      }
+
+      return testResultSummary;
+    } finally {
+      this._isOpen = false;
+      this._closePromise = undefined;
+    }
+  }
+
+  /**
+   * @return {Promise}
+   */
+  async closeAsync() {
+    if (!this._closePromise) {
+      this._closePromise = this._closeCommand();
+    }
+  }
+
+  /**
    * @param {boolean} [throwEx]
    * @return {Promise<TestResults>}
    */
   async close(throwEx = true) {
-    try {
-      const results = await this._closeCommand(throwEx);
+    const results = await this.closeAndReturnResults(throwEx);
 
-      for (const result of results) {
-        if (result instanceof TestFailedError) {
-          return result.getTestResults();
-        }
+    for (const result of results.getAllResults()) {
+      if (result.getException()) {
+        return result.getTestResults();
       }
-
-      return results[0];
-    } catch (err) {
-      if (Array.isArray(err)) {
-        for (const result of err) {
-          if (result instanceof Error) {
-            throw result;
-          }
-        }
-
-        throw err[0];
-      }
-
-      throw err;
-    } finally {
-      this._isOpen = false;
     }
+
+    return results.getAllResults()[0].getTestResults();
   }
 
   // noinspection JSMethodCanBeStatic
@@ -220,18 +250,6 @@ class EyesVisualGrid extends EyesBase {
 
   /**
    * @param {boolean} [throwEx]
-   * @return {Promise<(TestResults|Error)[]>}
-   */
-  async closeAndReturnResults(throwEx = true) {
-    try {
-      return await this._closeCommand(throwEx);
-    } finally {
-      this._isOpen = false;
-    }
-  }
-
-  /**
-   * @param {boolean} [throwEx]
    * @return {Promise<void>}
    */
   async closeAndPrintResults(throwEx = false) {
@@ -243,23 +261,12 @@ class EyesVisualGrid extends EyesBase {
   }
 
   /**
-   * @deprecated
-   */
-  getEyesRunner() {
-    const runner = {};
-    runner.getAllResults = async () => {
-      return await this.closeAndReturnResults();
-    };
-    return runner;
-  }
-
-  /**
    * @private
    * @param {{type: string, url: string, value: string}[]} blobs
    * @return {{type: string, url: string, value: Buffer}[]}
    */
   _blobsToResourceContents(blobs) {
-    return blobs.map(({ url, type, value }) => ({
+    return blobs.map(({url, type, value}) => ({
       url,
       type,
       value: Buffer.from(value, 'base64'),
@@ -267,11 +274,7 @@ class EyesVisualGrid extends EyesBase {
   }
 
   getRunner() {
-    const runner = {};
-    runner.getAllResults = async (throwEx = true) => {
-      return await this.closeAndReturnResults(throwEx);
-    };
-    return runner;
+    return this._visualGridRunner;
   }
 
   /**
