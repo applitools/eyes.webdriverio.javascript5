@@ -2,8 +2,7 @@
 
 const chromedriver = require('chromedriver');
 const {remote} = require('webdriverio');
-const {By, Eyes, Target, VisualGridRunner} = require('../index'); // should be replaced to '@applitools/eyes.webdriverio'
-const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@applitools/eyes-selenium');
+const {By, Eyes, Target, VisualGridRunner, Configuration, BrowserType, DeviceName, ScreenOrientation} = require('../index'); // should be replaced to '@applitools/eyes-webdriverio'
 
 (async () => {
   chromedriver.start();
@@ -47,11 +46,11 @@ const {BrowserType, Configuration, DeviceName, ScreenOrientation} = require('@ap
     await eyes.check('Click!', Target.window());
 
     // End the test.
-    // const results = await eyes.close(); // will return only first TestResults, but as we have two browsers, we need more results
-    const results = await eyes.getRunner().getAllResults(false);
+    // const results = await eyes.close(); // will return only first TestResults, but as we have two browsers, we need more result
+    const results = await eyes.getRunner().getAllTestResults(false);
     console.log(results);
   } catch (e) {
-    console.log(e);
+    console.log(`Error ${e}`);
   } finally {
     // Close the browser.
     await driver.deleteSession();
