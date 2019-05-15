@@ -14,4 +14,3 @@ exports.StitchMode = require('./src/StitchMode');
 exports.StitchMode = require('./src/StitchMode');
 exports.VisualGridRunner = require('./src/visualgrid/VisualGridRunner').VisualGridRunner;
 exports.Configuration = require('@applitools/eyes-selenium').Configuration;
-exports.BatchInfo = require('@applitools/eyes-selenium').BatchInfo;
