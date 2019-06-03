@@ -502,7 +502,6 @@ class EyesWDIO extends EyesBase {
     const viewportSize = await this.getViewportSize();
     const s = await this.getDriver().takeScreenshot();
     const screenshot = new MutableImage(s);
-    // return this._debugScreenshotsProvider.save(screenshot, "qweqweqwe");
     return screenshot.getWidth() / viewportSize.getWidth();
   }
 
@@ -523,8 +522,7 @@ class EyesWDIO extends EyesBase {
         that._devicePixelRatio = ratio;
       }).catch(async (err) => {
         if (EyesWDIOUtils.isMobileDevice(that._driver.remoteWebDriver)) {
-          const ratio = await that._getMobilePixelRation();
-          that._devicePixelRatio = ratio;
+          that._devicePixelRatio = await that._getMobilePixelRation();
         } else {
           throw err;
         }
