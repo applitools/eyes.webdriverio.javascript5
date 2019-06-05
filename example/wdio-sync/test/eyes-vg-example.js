@@ -26,7 +26,7 @@ describe('applitools', function () {
 
   afterEach(function () {
     try {
-      const results = browser.call(() => eyes.getRunner().getAllResults(false));
+      const results = browser.call(() => eyes.getRunner().getAllTestResults(false));
       console.log('Result:', results);
     } catch (e) {
       browser.call(() => eyes.abortIfNotClosed());
