@@ -23,7 +23,7 @@ const {
       browserName: 'chrome'
     }
   };
-  let driver = await remote(chrome);
+  const browser = await remote(chrome);
 
   // Initialize the eyes SDK and set your private API key.
   const eyes = new Eyes(new VisualGridRunner(3));
@@ -44,7 +44,7 @@ const {
     configuration.setApiKey(process.env.APPLITOOLS_API_KEY);
     eyes.setConfiguration(configuration);
 
-    driver = await eyes.open(driver);
+    const driver = await eyes.open(browser);
 
     // Navigate the browser to the "hello world!" web-site.
     await driver.url('https://applitools.com/helloworld');
@@ -53,8 +53,8 @@ const {
     await eyes.check('Main Page', Target.window());
 
     // Click the "Click me!" button.
-    const el = await driver.findElement(By.css('button'));
-    await el.click();
+    const b = await browser.$('button');
+    await b.click();
 
     // Visual checkpoint #2.
     await eyes.check('Click!', Target.window());
@@ -67,7 +67,7 @@ const {
     console.log(`Error ${e}`);
   } finally {
     // Close the browser.
-    await driver.deleteSession();
+    await browser.deleteSession();
 
     // If the test was aborted before eyes.close was called ends the test as aborted.
     await eyes.abortIfNotClosed();
