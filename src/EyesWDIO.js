@@ -302,7 +302,8 @@ class EyesWDIO extends EyesBase {
         if (targetRegion) {
           return this._tryHideScrollbars().then(async () => {
             that._targetElementLocation = targetRegion.getLocation();
-            const res = await super.checkWindowBase(new RegionProvider(targetRegion), name, false, checkSettings);
+            const source = await this._driver.getCurrentUrl();
+            const res = await super.checkWindowBase(new RegionProvider(targetRegion), name, false, checkSettings, source);
             await that._tryRestoreScrollbars();
             return res;
           });
@@ -339,8 +340,9 @@ class EyesWDIO extends EyesBase {
               return that.getPositionProvider().setPosition(Location.ZERO);
             }).then(() => {
               return that._tryHideScrollbars();
-            }).then(() => {
-              return super.checkWindowBase(new NullRegionProvider(), name, false, checkSettings);
+            }).then(async () => {
+              const source = await this._driver.getCurrentUrl();
+              return super.checkWindowBase(new NullRegionProvider(), name, false, checkSettings, source);
             }).then(res_ => {
               res = res_;
               return that.getPositionProvider().restoreState(originalPosition);
@@ -384,7 +386,8 @@ class EyesWDIO extends EyesBase {
       }
     };
 
-    const r = await super.checkWindowBase(new RegionProviderImpl(), name, false, checkSettings);
+    const source = await this._driver.getCurrentUrl();
+    const r = await super.checkWindowBase(new RegionProviderImpl(), name, false, checkSettings, source);
     this._logger.verbose("Done! trying to scroll back to original position..");
     return r;
   }
@@ -446,7 +449,7 @@ class EyesWDIO extends EyesBase {
             elementLocation = new Location(pl.getX() + borderLeftWidth, pl.getY() + borderTopWidth);
           });
         });
-      }).then(() => {
+      }).then(async () => {
         const elementRegion = new Region(elementLocation, elementSize, CoordinatesType.CONTEXT_AS_IS);
 
         that._logger.verbose("Element region: " + elementRegion);
@@ -465,7 +468,8 @@ class EyesWDIO extends EyesBase {
           that.setPositionProvider(new CssTranslateElementPositionProvider(that._logger, that._driver, eyesElement));
         }
 
-        return super.checkWindowBase(new NullRegionProvider(), name, false, checkSettings);
+        const source = await this._driver.getCurrentUrl();
+        return super.checkWindowBase(new NullRegionProvider(), name, false, checkSettings, source);
       });
     }).catch(error_ => {
       error = error_;
@@ -571,7 +575,8 @@ class EyesWDIO extends EyesBase {
       }
     };
 
-    const r = await super.checkWindowBase(new RegionProviderImpl(), name, false, checkSettings);
+    const source = await this._driver.getCurrentUrl();
+    const r = await super.checkWindowBase(new RegionProviderImpl(), name, false, checkSettings, source);
     that._checkFrameOrElement = false;
     return r;
   }
