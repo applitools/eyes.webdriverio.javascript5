@@ -19,7 +19,6 @@ class By extends ByBase {
   static xPath(name) {
     return super.xPath ? super.xPath(name) : super.xpath(name);
   }
-
 }
 
 exports.By = By;
