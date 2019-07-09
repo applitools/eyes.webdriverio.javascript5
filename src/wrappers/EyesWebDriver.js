@@ -283,8 +283,7 @@ class EyesWebDriver {
 
   // noinspection JSUnusedGlobalSymbols
   async getCurrentUrl() {
-    const {value: result} = await this.url();
-    return result;
+    return await this.getUrl();
   }
 
 

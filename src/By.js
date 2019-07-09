@@ -15,6 +15,10 @@ class By extends ByBase {
   static name(name) {
     return super.name(name);
   }
+
+  static xPath(name) {
+    return super.xPath ? super.xPath(name) : super.xpath(name);
+  }
 }
 
 exports.By = By;
