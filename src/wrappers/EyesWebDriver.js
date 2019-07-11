@@ -166,7 +166,7 @@ class EyesWebDriver {
    * @return {Promise.<EyesWebElement>}
    */
   async findElement(locator) {
-    const element = await this.remoteWebDriver.findElement(locator.using, locator.value);
+    const element = await this.remoteWebDriver.$(locator.value);
     return new EyesWebElement(this._logger, this, new WebElement(this._tsInstance, element, locator));
   }
 
@@ -177,7 +177,7 @@ class EyesWebDriver {
    * @return {Promise.<EyesWebElement[]>}
    */
   async findElements(locator) {
-    const elements = await this.remoteWebDriver.findElements(locator.using, locator.value);
+    const elements = await this.remoteWebDriver.$$(locator.value);
 
     return elements.map((element) => {
       return new EyesWebElement(this._logger, this, new WebElement(this._tsInstance, element, locator));
