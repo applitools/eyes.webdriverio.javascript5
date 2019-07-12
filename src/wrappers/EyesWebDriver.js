@@ -166,7 +166,10 @@ class EyesWebDriver {
    * @return {Promise.<EyesWebElement>}
    */
   async findElement(locator) {
-    const element = await this.remoteWebDriver.findElement(locator.using, locator.value);
+    const element = await this.remoteWebDriver.$(locator.value);
+    if (element.error) {
+      throw new Error(element.error.message);
+    }
     return new EyesWebElement(this._logger, this, new WebElement(this._tsInstance, element, locator));
   }
 
