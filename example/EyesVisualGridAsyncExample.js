@@ -60,14 +60,14 @@ async function runTest(url, runner) {
       browserName: 'chrome'
     }
   };
-  const driver = await remote(chrome);
+  const browser = await remote(chrome);
 
   try {
     // Navigate to the URL we want to test
-    await driver.url(url);
+    await browser.url(url);
 
     // Call Open on eyes to initialize a test session
-    await eyes.open(driver);
+    await eyes.open(browser);
 
     // Check the page
     await eyes.check('Main Page ' + url, Target.window());
@@ -78,7 +78,7 @@ async function runTest(url, runner) {
     console.log('Error', e); // eslint-disable-line
   } finally {
     // Close the browser
-    await driver.deleteSession();
+    await browser.deleteSession();
   }
 }
 
