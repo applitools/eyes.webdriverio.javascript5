@@ -30,16 +30,17 @@ class WebElement {
    * @param {int} [retry]
    * @return {Promise.<WebElement>}
    */
-  static findElement(driver, locator, retry = 0) {
-    return driver.remoteWebDriver.findElement(locator.using, locator.value).then(element => {
+  static async findElement(driver, locator, retry = 0) {
+    try {
+      const element = await driver.remoteWebDriver.findElement(locator.using, locator.value);
       return new WebElement(driver, element, locator);
-    }).catch(e => {
+    } catch (e) {
       if (retry > 3) {
         throw e;
       } else {
         return WebElement.findElement(driver, locator, retry++);
       }
-    });
+    }
   }
 
 
@@ -56,9 +57,13 @@ class WebElement {
    */
   async getLocation() {
     try {
-      return this._driver.remoteWebDriver.getElementLocation(this.element.ELEMENT);
+      return await this._driver.remoteWebDriver.getElementRect(this.elementId);
     } catch (e) {
-      throw e;
+      try {
+        return this._driver.remoteWebDriver.getElementLocation(this.elementId);
+      } catch (ignored) {
+        throw e;
+      }
     }
   }
 
@@ -68,9 +73,13 @@ class WebElement {
    */
   async getSize() {
     try {
-      return this._driver.remoteWebDriver.getElementSize(this.element.ELEMENT);
+      return await this._driver.remoteWebDriver.getElementRect(this.elementId);
     } catch (e) {
-      throw e;
+      try {
+        return this._driver.remoteWebDriver.getElementSize(this.element.ELEMENT);
+      } catch (ignored) {
+        throw e;
+      }
     }
   }
 
@@ -78,12 +87,10 @@ class WebElement {
   /**
    * @returns {Promise.<x, y, width, height>}
    */
-  getRect() {
+  async getRect() {
     // todo need to replace elementIdSize and elementIdLocation to elementIdRect
-    return this._driver.remoteWebDriver.elementIdRect(this._element.ELEMENT).then(r => {
-      const {value: rect} = r;
-      return rect;
-    });
+    const rect = await this._driver.remoteWebDriver.elementIdRect(this.elementId);
+    return rect;
   }
 
 
@@ -91,7 +98,7 @@ class WebElement {
    * @returns {Promise}
    */
   click() {
-    return this._driver.remoteWebDriver.elementClick(this._element.ELEMENT);
+    return this._driver.remoteWebDriver.elementClick(this.elementId);
   }
 
 
@@ -118,8 +125,8 @@ class WebElement {
       return true;
     }
 
-    const elementA = a.getWebElement().element.ELEMENT;
-    const elementB = b.getWebElement().element.ELEMENT;
+    const elementA = a.getWebElement().elementId;
+    const elementB = b.getWebElement().elementId;
     if (a === b) {
       return true;
     }
@@ -143,7 +150,7 @@ class WebElement {
    */
   sendKeys(keysToSend) {
     const that = this;
-    return that._driver.remoteWebDriver.elementIdClick(this._element.ELEMENT).then(() => {
+    return that._driver.remoteWebDriver.elementIdClick(this.elementId).then(() => {
       return that._driver.remoteWebDriver.keys(keysToSend);
     });
   }
@@ -151,29 +158,20 @@ class WebElement {
   /**
    * @returns {Promise.<{offsetLeft, offsetTop}>}
    */
-  getElementOffset() {
-    const that = this;
-    let offsetLeft;
-    return that._driver.remoteWebDriver.elementIdAttribute(this._element.ELEMENT, 'offsetLeft').then(offsetLeft_ => {
-      offsetLeft = offsetLeft_.value;
-      return that._driver.remoteWebDriver.elementIdAttribute(this._element.ELEMENT, 'offsetTop');
-    }).then(offsetTop_ => {
-      return {offsetLeft: parseInt(offsetLeft), offsetTop: parseInt(offsetTop_.value)};
-    });
+  async getElementOffset() {
+    const offsetLeft = await this._driver.remoteWebDriver.elementIdAttribute(this.elementId, 'offsetLeft');
+    const offsetTop = await this._driver.remoteWebDriver.elementIdAttribute(this.elementId, 'offsetTop');
+    return {offsetLeft: parseInt(offsetLeft.value), offsetTop: parseInt(offsetTop.value)};
   }
 
   /**
    * @returns {Promise.<{scrollLeft, scrollTop}>}
    */
-  getElementScroll() {
+  async getElementScroll() {
     const that = this;
-    let scrollLeft;
-    return that._driver.remoteWebDriver.elementIdAttribute(this._element.ELEMENT, 'scrollLeft').then(scrollLeft_ => {
-      scrollLeft = scrollLeft_.value;
-      return that._driver.remoteWebDriver.elementIdAttribute(this._element.ELEMENT, 'scrollTop');
-    }).then(scrollTop_ => {
-      return {scrollLeft: parseInt(scrollLeft), scrollTop: parseInt(scrollTop_.value)};
-    });
+    const scrollLeft = await that._driver.remoteWebDriver.elementIdAttribute(this.elementId, 'scrollLeft');
+    const scrollTop = await that._driver.remoteWebDriver.elementIdAttribute(this.elementId, 'scrollTop');
+    return {scrollLeft: parseInt(scrollLeft), scrollTop: parseInt(scrollTop.value)};
   }
 
   /**
@@ -188,6 +186,13 @@ class WebElement {
    */
   get element() {
     return this._element;
+  }
+
+  /**
+   * @return {string}
+   */
+  get elementId() {
+    return this._element.elementId || this._element.ELEMENT;
   }
 
   get locator() {
