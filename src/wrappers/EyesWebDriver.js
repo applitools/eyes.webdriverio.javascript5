@@ -167,6 +167,9 @@ class EyesWebDriver {
    */
   async findElement(locator) {
     const element = await this.remoteWebDriver.$(locator.value);
+    if (element.error) {
+      throw new Error(element.error.message);
+    }
     return new EyesWebElement(this._logger, this, new WebElement(this._tsInstance, element, locator));
   }
 
