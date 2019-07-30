@@ -35,7 +35,8 @@ let imageOrientationHandler = new class ImageOrientationHandlerImpl extends Imag
 }();
 
 // noinspection JSUnusedLocalSymbols
-let javascriptHandler = new class JavascriptHandlerImpl extends JavascriptHandler {}();
+let javascriptHandler = new class JavascriptHandlerImpl extends JavascriptHandler {
+}();
 
 
 class EyesWDIOUtils {
@@ -452,9 +453,7 @@ class EyesWDIOUtils {
       logger.verbose("Using window size as viewport size.");
 
       /** {width:number, height:number} */
-      const size = await executor.remoteWebDriver.getWindowRect();
-      let width = size.width;
-      let height = size.height;
+      let {width, height} = await EyesWDIOUtils.getWindowRect(executor);
       try {
         const result = await EyesWDIOUtils.isLandscapeOrientation(executor);
         if (result && height > width) {
@@ -512,7 +511,7 @@ class EyesWDIOUtils {
     logger.verbose("Trying to set browser size to:", requiredSize);
 
     await browser.remoteWebDriver.setWindowSize(requiredSize.getWidth(), requiredSize.getHeight());
-    const size = await browser.remoteWebDriver.getWindowRect();
+    let size = await EyesWDIOUtils.getWindowRect(browser);
     const currentSize = new RectangleSize(size.width, size.height);
     logger.log(`Current browser size: ${currentSize}`);
     if (currentSize.equals(requiredSize)) {
@@ -536,7 +535,7 @@ class EyesWDIOUtils {
    */
   static async setBrowserSizeByViewportSize(logger, browser, actualViewportSize, requiredViewportSize) {
     /** {width:number, height:number} */
-    const browserSize = await browser.remoteWebDriver.getWindowRect();
+    let browserSize = await EyesWDIOUtils.getWindowRect(browser);
     logger.verbose("Current browser size:", browserSize);
     const requiredBrowserSize = {
       width: browserSize.width + (requiredViewportSize.getWidth() - actualViewportSize.getWidth()),
@@ -604,7 +603,7 @@ class EyesWDIOUtils {
     const heightDiff = actualViewportSize.getHeight() - requiredSize.getHeight();
     const heightStep = heightDiff > 0 ? -1 : 1;
 
-    const browserSize = await browser.remoteWebDriver.getWindowRect();
+    let browserSize = await EyesWDIOUtils.getWindowRect(browser);
     const currWidthChange = 0;
     const currHeightChange = 0;
     // We try the zoom workaround only if size difference is reasonable.
@@ -712,6 +711,19 @@ class EyesWDIOUtils {
 
   }
 
+  /**
+   * @private
+   */
+  static async getWindowRect(browser) {
+    let browserSize;
+    try {
+      browserSize = await browser.remoteWebDriver.getWindowSize();
+    } catch (ignored) {
+      browserSize = await browser.remoteWebDriver.getWindowRect();
+    }
+
+    return browserSize;
+  }
 }
 
 module.exports = EyesWDIOUtils;
