@@ -168,10 +168,6 @@ class EyesWDIO extends EyesBase {
       return driver;
     }
 
-    if (this._configuration.getStitchMode() === StitchMode.CSS) {
-      this.setSendDom(true);
-    }
-
     if (driver && driver.isMobile) { // set viewportSize to null if browser is mobile
       varArg3 = null;
     }
