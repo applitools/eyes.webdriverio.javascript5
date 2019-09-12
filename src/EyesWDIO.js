@@ -843,6 +843,12 @@ class EyesWDIO extends EyesBase {
     await this.close(false);
   }
 
+  /**
+   * @return {Promise}
+   */
+  async abortAsync() {
+    await this.abort();
+  }
 
   /**
    * @param {boolean} [throwEx]
