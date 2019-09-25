@@ -9,13 +9,13 @@ const {
   CorsIframeHandle,
   CorsIframeHandler,
   TypeUtils,
-  IgnoreRegionByRectangle
+  IgnoreRegionByRectangle,
+  RectangleSize,
 } = require('@applitools/eyes-sdk-core');
 
+const {BrowserType, Configuration} = require('@applitools/eyes-selenium');
+
 const {TestResultSummary} = require('./runner/TestResultSummary');
-
-const {BrowserType, RectangleSize, Configuration} = require('@applitools/eyes-selenium');
-
 const EyesWebDriver = require('./wrappers/EyesWebDriver');
 const EyesWDIOUtils = require('./EyesWDIOUtils');
 const WDIOJSExecutor = require('./WDIOJSExecutor');
