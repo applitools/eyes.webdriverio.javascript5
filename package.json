@@ -1,15 +1,36 @@
 {
   "name": "@applitools/eyes-webdriverio",
   "version": "5.7.2",
-  "description": "Applitools Eyes SDK for Webdriverio ",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha-parallel-tests ./test/Test*.js -t 300000 --max-parallel 5 --timeout 300000",
-    "test.mocha": "mocha ./test/Test*.js -t 300000"
+  "description": "Applitools Eyes SDK for WebdriverIO",
+  "keywords": [
+    "eyes-webdriverio",
+    "applitools",
+    "eyes",
+    "test automation",
+    "visual regression",
+    "automation",
+    "testing",
+    "tests",
+    "webdriverio"
+  ],
+  "homepage": "https://applitools.com",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
-  "author": "Applitools Team <team@applitools.com> (http://www.applitools.com/)",
-  "license": "See LICENSE file",
-  "repository": "https://github.com/applitools/eyes.webdriverio.javascript5",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/applitools/eyes.webdriverio.javascript5.git"
+  },
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.webdriverio.javascript5/issues"
+  },
+  "directories": {
+    "example": "./example",
+    "lib": "./src",
+    "test": "./test"
+  },
+  "main": "./index.js",
   "dependencies": {
     "@applitools/dom-utils": "^4.6.34",
     "@applitools/eyes-sdk-core": "^5.18.0",
@@ -29,6 +50,11 @@
     "mocha-parallel-tests": "^2.2.2",
     "shared-examples-for": "^0.1.3"
   },
+  "scripts": {
+    "test": "mocha-parallel-tests ./test/Test*.js -t 300000 --max-parallel 5 --timeout 300000",
+    "test.mocha": "mocha ./test/Test*.js -t 300000"
+  },
+  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=8.9.0"
   }
