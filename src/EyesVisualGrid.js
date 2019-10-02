@@ -11,9 +11,9 @@ const {
   TypeUtils,
   IgnoreRegionByRectangle,
   RectangleSize,
+  Configuration,
+  BrowserType,
 } = require('@applitools/eyes-sdk-core');
-
-const {BrowserType, Configuration} = require('@applitools/eyes-selenium');
 
 const {TestResultSummary} = require('./runner/TestResultSummary');
 const EyesWebDriver = require('./wrappers/EyesWebDriver');

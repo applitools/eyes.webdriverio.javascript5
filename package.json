@@ -34,7 +34,6 @@
   "dependencies": {
     "@applitools/dom-utils": "^4.6.34",
     "@applitools/eyes-sdk-core": "^5.19.0",
-    "@applitools/eyes-selenium": "^4.30.7",
     "@applitools/visual-grid-client": "^12.34.2",
     "chromedriver": "^77.0.0",
     "geckodriver": "^1.18.0",
