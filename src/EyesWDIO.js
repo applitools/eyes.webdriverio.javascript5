@@ -74,7 +74,7 @@ class EyesWDIO extends EyesBase {
    * @param {ClassicRunner} [runner] - Set shared ClassicRunner if you want to group results.
    **/
   constructor(serverUrl, isDisabled = false, runner = new ClassicRunner()) {
-    super(serverUrl, isDisabled, new Configuration);
+    super(serverUrl, isDisabled, new Configuration());
     /** @type {EyesRunner} */ this._runner = runner;
 
     /** @type {EyesWebDriver} */
@@ -843,6 +843,12 @@ class EyesWDIO extends EyesBase {
     await this.close(false);
   }
 
+  /**
+   * @return {Promise}
+   */
+  async abortAsync() {
+    await this.abort();
+  }
 
   /**
    * @param {boolean} [throwEx]
