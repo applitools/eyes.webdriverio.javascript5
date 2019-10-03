@@ -234,7 +234,7 @@ class WebdriverioCheckSettings extends CheckSettings {
    * @param {AccessibilityRegionType} [regionType] - Type of accessibility.
    * @return {this}
    */
-  accessibility(regionOrContainer, regionType) {
+  accessibilityRegion(regionOrContainer, regionType) {
     if (regionOrContainer instanceof By) {
       const accessibilityRegion = new AccessibilityRegionBySelector(regionOrContainer, regionType);
       this._accessibilityRegions.push(accessibilityRegion);

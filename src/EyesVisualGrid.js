@@ -119,7 +119,7 @@ class EyesVisualGrid extends EyesBase {
       await this.setViewportSize(vs);
     }
 
-    const {checkWindow, close} = await openEyes({
+    const {checkWindow, close, abort} = await openEyes({
       appName: this._configuration.getAppName(),
       testName: this._configuration.getTestName(),
       browser: this._configuration.getBrowsersInfo(),
@@ -142,6 +142,10 @@ class EyesVisualGrid extends EyesBase {
 
       ignoreCaret: this._configuration.getIgnoreCaret(),
       matchLevel: this._configuration.getMatchLevel(),
+      useDom: this._configuration.getUseDom(),
+      enablePatterns: this._configuration.getEnablePatterns(),
+      ignoreDisplacements: this._configuration.getIgnoreDisplacements(),
+      saveDebugData: this._configuration.getSaveDebugData(),
 
       // renderBatch,
       // waitForRenderedStatus,

@@ -53,7 +53,7 @@ const {
     await driver.url('https://applitools.com/helloworld');
 
     // Visual checkpoint #1.
-    await eyes.check('Main Page', Target.window().accessibilityLevel(AccessibilityLevel.AA).accessibilityRegion(browser.$('button'), AccessibilityRegionType.RegularText));
+    await eyes.check('Main Page', Target.window().accessibilityLevel(AccessibilityLevel.AA).accessibilityRegion(By.css('button'), AccessibilityRegionType.RegularText));
 
     // Click the "Click me!" button.
     const b = await browser.$('button');
