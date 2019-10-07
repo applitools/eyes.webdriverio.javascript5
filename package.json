@@ -32,9 +32,9 @@
   },
   "main": "./index.js",
   "dependencies": {
-    "@applitools/dom-utils": "^4.6.34",
-    "@applitools/eyes-sdk-core": "^5.19.0",
-    "@applitools/visual-grid-client": "^12.34.2",
+    "@applitools/dom-utils": "^4.6.36",
+    "@applitools/eyes-sdk-core": "^5.20.1",
+    "@applitools/visual-grid-client": "^12.34.4",
     "chromedriver": "^77.0.0",
     "geckodriver": "^1.18.0",
     "selenium-webdriver": "^4.0.0-alpha.5",

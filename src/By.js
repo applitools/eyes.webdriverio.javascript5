@@ -1,6 +1,6 @@
 const {By: ByBase} = require('selenium-webdriver');
 
-
+// TODO: remove this class and use native $() selector instead
 class By extends ByBase {
 
   /**
