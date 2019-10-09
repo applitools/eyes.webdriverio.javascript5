@@ -10,7 +10,7 @@ const {equal} = require('assert');
 let eyes;
 let browser;
 
-describe.skip('IOSTest', () => {
+describe.skip('IOSTest', function () {
   this.timeout(60 * 1000 * 100);
 
   const batchInfo = new BatchInfo('WebDriverIO Tests');

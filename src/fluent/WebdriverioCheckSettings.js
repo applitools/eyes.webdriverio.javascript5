@@ -1,7 +1,7 @@
 'use strict';
 
 const {CheckSettings, Region, TypeUtils} = require('@applitools/eyes-sdk-core');
-const {By} = require('selenium-webdriver');
+const {By} = require('selenium-webdriver'); // TODO: remove usage
 const WebElement = require('../wrappers/WebElement');
 const EyesWebElement = require('../wrappers/EyesWebElement');
 const FrameLocator = require('./FrameLocator');
@@ -11,6 +11,8 @@ const {SelectorByElement} = require('./SelectorByElement');
 const {SelectorByLocator} = require('./SelectorByLocator');
 const FloatingRegionBySelector = require('./FloatingRegionBySelector');
 const FloatingRegionByElement = require('./FloatingRegionByElement');
+const AccessibilityRegionBySelector = require('./AccessibilityRegionBySelector');
+const AccessibilityRegionByElement = require('./AccessibilityRegionByElement');
 
 const USE_DEFAULT_MATCH_TIMEOUT = -1;
 const BEFORE_CAPTURE_SCREENSHOT = 'beforeCaptureScreenshot';
@@ -221,6 +223,27 @@ class WebdriverioCheckSettings extends CheckSettings {
    */
   floatings(maxOffset, ...regionsOrContainers) {
     super.floatings(maxOffset, ...regionsOrContainers);
+    return this;
+  }
+
+  // noinspection JSCheckFunctionSignatures
+  /**
+   * @inheritDoc
+   * @param {GetAccessibilityRegion|Region|AccessibilityMatchSettings|By|WebElement|EyesWebElement} regionOrContainer -
+   *   The content rectangle or region container
+   * @param {AccessibilityRegionType} [regionType] - Type of accessibility.
+   * @return {this}
+   */
+  accessibilityRegion(regionOrContainer, regionType) {
+    if (regionOrContainer instanceof By) {
+      const accessibilityRegion = new AccessibilityRegionBySelector(regionOrContainer, regionType);
+      this._accessibilityRegions.push(accessibilityRegion);
+    } else if (regionOrContainer instanceof WebElement) {
+      const floatingRegion = new AccessibilityRegionByElement(regionOrContainer, regionType);
+      this._accessibilityRegions.push(floatingRegion);
+    } else {
+      super.accessibilityRegion(regionOrContainer, regionType);
+    }
     return this;
   }
 
