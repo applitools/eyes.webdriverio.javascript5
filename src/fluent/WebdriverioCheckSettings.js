@@ -1,7 +1,7 @@
 'use strict';
 
 const {CheckSettings, Region, TypeUtils} = require('@applitools/eyes-sdk-core');
-const {By} = require('selenium-webdriver');
+const {By} = require('selenium-webdriver'); // TODO: remove usage
 const WebElement = require('../wrappers/WebElement');
 const EyesWebElement = require('../wrappers/EyesWebElement');
 const FrameLocator = require('./FrameLocator');

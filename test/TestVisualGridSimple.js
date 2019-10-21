@@ -4,8 +4,7 @@ const chromedriver = require('chromedriver');
 const {remote} = require('webdriverio');
 const {equal} = require('assert');
 const {BatchInfo, Region, CorsIframeHandle} = require('@applitools/eyes-sdk-core');
-const {BrowserType, Configuration} = require('@applitools/eyes-selenium');
-const {Eyes, Target, VisualGridRunner} = require('../index');
+const {Eyes, Target, VisualGridRunner, BrowserType, Configuration} = require('../index');
 
 const Common = require('./Common');
 

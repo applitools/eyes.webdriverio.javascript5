@@ -19,7 +19,7 @@ class AccessibilityRegionByElement extends GetAccessibilityRegion {
    * @inheritDoc
    * @param {Eyes} eyes
    * @param {EyesScreenshot} screenshot
-   * @return {Promise<AccessibilityMatchSettings>}
+   * @return {Promise<AccessibilityMatchSettings[]>}
    */
   async getRegion(eyes, screenshot) {
     const point = await this._element.getLocation();
@@ -30,13 +30,14 @@ class AccessibilityRegionByElement extends GetAccessibilityRegion {
       CoordinatesType.SCREENSHOT_AS_IS
     );
 
-    return new AccessibilityMatchSettings({
+    const accessibilityRegion = new AccessibilityMatchSettings({
       left: pTag.getX(),
       top: pTag.getY(),
       width: size.getWidth(),
       height: size.getHeight(),
       type: this._regionType,
     });
+    return [accessibilityRegion];
   }
 }
 

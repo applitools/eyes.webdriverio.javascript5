@@ -5,7 +5,6 @@ const {
   CoordinatesType,
   EyesBase,
   FailureReports,
-  FixedCutProvider,
   FixedScaleProviderFactory,
   FullPageCaptureAlgorithm,
   Location,
@@ -21,10 +20,9 @@ const {
   TypeUtils,
   UserAgent,
   ArgumentGuard,
+  Configuration,
   SimplePropertyHandler
 } = require('@applitools/eyes-sdk-core');
-
-const {Configuration} = require('@applitools/eyes-selenium');
 
 const {DomCapture} = require('@applitools/dom-utils');
 
