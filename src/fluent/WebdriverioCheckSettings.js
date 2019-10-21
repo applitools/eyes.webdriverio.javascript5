@@ -65,7 +65,7 @@ class WebdriverioCheckSettings extends CheckSettings {
 
   /**
    *
-   * @param {Region|By|WebElement} region
+   * @param {Region|By|WebElement|string} region
    * @returns {WebdriverioCheckSettings}
    */
   region(region) {
