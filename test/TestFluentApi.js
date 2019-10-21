@@ -3,7 +3,12 @@
 const {equal} = require('assert');
 const shared = require('shared-examples-for');
 const {By, Target} = require('../index');
-const {FloatingMatchSettings, Region} = require('@applitools/eyes-sdk-core');
+const {
+  FloatingMatchSettings,
+  Region,
+  AccessibilityLevel,
+  AccessibilityRegionType
+} = require('@applitools/eyes-sdk-core');
 
 
 shared.examplesFor('TestFluentApi', function (test) {
@@ -158,6 +163,26 @@ shared.examplesFor('TestFluentApi', function (test) {
     );
     equal(result.getAsExpected(), true);
   });
+
+  it.skip('TestAccessibilityRegions', async () => {
+    const configuration = test.eyes.getConfiguration();
+    configuration.setApiKey(process.env.APPLITOOLS_FABRIC_API_KEY);
+    configuration.setServerUrl('https://eyesfabric4eyes.applitools.com');
+    configuration.setAccessibilityValidation(AccessibilityLevel.AAA);
+    test.eyes.setConfiguration(configuration);
+
+    await test.eyes.check('Main Page', Target.window().accessibilityRegion(By.className('ignore'), AccessibilityRegionType.LargeText));
+
+    // test.setExpectedAccessibilityRegions(
+    //   new AccessibilityRegionByRectangle(new Region(122, 928, 456, 306), AccessibilityRegionType.LargeText),
+    //   new AccessibilityRegionByRectangle(new Region(8, 1270, 690, 206), AccessibilityRegionType.LargeText),
+    //   new AccessibilityRegionByRectangle(new Region(10, 284, 800, 500), AccessibilityRegionType.LargeText)
+    // );
+
+    // test.addExpectedProperty('AccessibilityLevel', AccessibilityLevel.AAA);
+
+  });
+
 });
 
 module.exports.TestFluentApi = shared;
