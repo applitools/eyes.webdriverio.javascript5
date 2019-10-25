@@ -32,13 +32,13 @@
   },
   "main": "./index.js",
   "dependencies": {
-    "@applitools/dom-utils": "~4.6.37",
+    "@applitools/dom-utils": "~4.6.38",
     "@applitools/eyes-sdk-core": "~5.20.2",
-    "@applitools/visual-grid-client": "~12.35.1",
+    "@applitools/visual-grid-client": "~12.36.6",
     "chromedriver": "^77.0.0",
-    "geckodriver": "^1.18.0",
+    "geckodriver": "^1.19.0",
     "selenium-webdriver": "^4.0.0-alpha.5",
-    "webdriverio": "^5.14.4"
+    "webdriverio": "^5.15.3"
   },
   "devDependencies": {
     "mocha": "^6.2.0",
