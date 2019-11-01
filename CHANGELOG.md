@@ -1,4 +1,4 @@
-## [] - 2019-10-25
+## [5.8.2] - 2019-11-1
 ### Fixed
 - Default viewportSize `null` value was overriding configuration. [Trello 1168](https://trello.com/c/yPqI3erm)
 
