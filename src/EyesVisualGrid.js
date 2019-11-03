@@ -33,8 +33,8 @@ class EyesVisualGrid extends EyesBase {
   /**
    * Creates a new (possibly disabled) Eyes instance that interacts with the Eyes Server at the specified url.
    *
-   * @param {string} [serverUrl=EyesBase.getDefaultServerUrl()] The Eyes server URL.
-   * @param {boolean} [isDisabled=false] Set to true to disable Applitools Eyes and use the webdriver directly.
+   * @param {string} [serverUrl=EyesBase.getDefaultServerUrl()] - The Eyes server URL.
+   * @param {boolean} [isDisabled=false] - Set to true to disable Applitools Eyes and use the webdriver directly.
    * @param {EyesRunner} [runner] - Set {@code true} to disable Applitools Eyes and use the WebDriver directly.
    */
   constructor(serverUrl, isDisabled, runner = new VisualGridRunner()) {
@@ -55,16 +55,20 @@ class EyesVisualGrid extends EyesBase {
   }
 
   /**
-   * @signature `open(driver, configuration)`
-   * @signature `open(driver, appName, testName, ?viewportSize, ?configuration)`
+   * @signature `open(driver)`
+   * @sigparam {object} driver - The web driver that controls the browser hosting the application under test.
+   * @signature `open(driver, appName, testName, viewportSize)`
+   * @sigparam {string} appName - The name of the application under the test.
+   * @sigparam {string} testName - The test name.
+   * @sigparam {RectangleSize|RectangleSizeObject} [viewportSize] - The required browser's viewport size
    *
-   * @param {object} driver The web driver that controls the browser hosting the application under test.
-   * @param {Configuration|string} optArg1 The Configuration for the test or the name of the application under the test.
-   * @param {string} [optArg2] The test name.
-   * @param {RectangleSize|RectangleSizeObject} [optArg3] The required browser's viewport size
+   * @param {object} driver - The web driver that controls the browser hosting the application under test.
+   * @param {Configuration|string} optArg1 - The Configuration for the test or the name of the application under the test.
+   * @param {string} [optArg2] - The test name.
+   * @param {RectangleSize|RectangleSizeObject} [optArg3] - The required browser's viewport size
    *   (i.e., the visible part of the document's body) or to use the current window's viewport.
-   * @param {Configuration} [optArg4] The Configuration for the test
-   * @return {Promise<EyesWebDriver>} A wrapped WebDriver which enables Eyes trigger recording and frame handling.
+   * @param {Configuration} [optArg4] - The Configuration for the test
+   * @return {Promise<EyesWebDriver>} - A wrapped WebDriver which enables Eyes trigger recording and frame handling.
    */
   async open(driver, optArg1, optArg2, optArg3, optArg4) {
     ArgumentGuard.notNull(driver, 'driver');
@@ -508,11 +512,15 @@ class EyesVisualGrid extends EyesBase {
   getConfiguration() {
     return this._configuration;
   }
-
+  /**
+    * @param {string} apiKey
+    */
   setApiKey(apiKey) {
     this._configuration.setApiKey(apiKey);
   }
-
+  /**
+    * @return {string}
+    */
   getApiKey() {
     return this._configuration.getApiKey();
   }
