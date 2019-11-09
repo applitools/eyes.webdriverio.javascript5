@@ -1,8 +1,8 @@
-## [unversioned] - 
+## [5.8.3] - 2019-11-09 
 ### Fixed
-- fix css stitching for new chrome 78 (bug in chrome). [Trello 1206](https://trello.com/c/euVqe1Sv)
+- Fix css stitching for new chrome 78 (bug in chrome). [Trello 1206](https://trello.com/c/euVqe1Sv)
 
-## [5.8.2] - 2019-11-1
+## [5.8.2] - 2019-11-01
 ### Fixed
 - Default viewportSize `null` value was overriding configuration. [Trello 1168](https://trello.com/c/yPqI3erm)
 
