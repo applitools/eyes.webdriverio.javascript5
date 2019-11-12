@@ -494,7 +494,6 @@ class EyesVisualGrid extends EyesBase {
   }
 
   /**
-   * @deprecated
    * @param {Configuration} conf
    */
   setConfiguration(conf) {
@@ -506,7 +505,6 @@ class EyesVisualGrid extends EyesBase {
   }
 
   /**
-   * @deprecated
    * @return {Configuration}
    */
   getConfiguration() {
