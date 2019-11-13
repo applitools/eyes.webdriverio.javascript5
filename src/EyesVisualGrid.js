@@ -494,14 +494,14 @@ class EyesVisualGrid extends EyesBase {
   }
 
   /**
-   * @param {Configuration} conf
+   * @param {Configuration} configuration
    */
-  setConfiguration(conf) {
-    if (!(conf instanceof Configuration)) {
-      conf = new Configuration(conf);
+  setConfiguration(configuration) {
+    if (!(configuration instanceof Configuration)) {
+      configuration = new Configuration(configuration);
     }
 
-    this._configuration.mergeConfig(conf);
+    this._configuration.mergeConfig(configuration);
   }
 
   /**

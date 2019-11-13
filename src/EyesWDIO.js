@@ -905,11 +905,11 @@ class EyesWDIO extends EyesBase {
 
 
   /**
-   * @param {EyesJsExecutor} executor - The executor to use.
+   * @param {EyesJsExecutor} driver - The executor to use.
    * @return {Promise.<RectangleSize>} - The viewport size of the current context, or the display size if the viewport size cannot be retrieved.
    */
-  static getViewportSize(executor) {
-    return EyesWDIOUtils.getViewportSizeOrDisplaySize(this._logger, executor);
+  static getViewportSize(driver) {
+    return EyesWDIOUtils.getViewportSizeOrDisplaySize(this._logger, driver);
   }
 
 
@@ -1523,6 +1523,15 @@ class EyesWDIO extends EyesBase {
   }
 
   /**
+   * Sets the stitching overlap in pixels.
+   *
+   * @param {number} stitchOverlap - The width (in pixels) of the overlap.
+   */
+  setStitchOverlap(stitchOverlap) {
+    this._configuration.setStitchOverlap(stitchOverlap);
+  }
+
+  /**
    * @return {number} - The device pixel ratio, or {@link #UNKNOWN_DEVICE_PIXEL_RATIO} if the DPR is not known yet or if it wasn't possible to extract it.
    */
   getDevicePixelRatio() {
@@ -1582,20 +1591,18 @@ class EyesWDIO extends EyesBase {
   }
 
   /**
-   * @deprecated
-   * @param {Configuration|object} conf
+   * @param {Configuration|object} configuration
    */
-  setConfiguration(conf) {
-    if (!(conf instanceof Configuration)) {
-      conf = new Configuration(conf);
+  setConfiguration(configuration) {
+    if (!(configuration instanceof Configuration)) {
+      configuration = new Configuration(configuration);
     }
 
-    this._serverConnector._configuration = conf;
-    this._configuration = conf;
+    this._serverConnector._configuration = configuration;
+    this._configuration = configuration;
   }
 
   /**
-   * @deprecated
    * @return {Configuration}
    */
   getConfiguration() {
