@@ -110,16 +110,16 @@ class WebdriverioCheckSettings extends CheckSettings {
    * Adds a region to ignore.
    *
    * @override
-   * @param {GetRegion|Region|By|WebElement|EyesWebElement} regionOrContainer The region or region container to ignore when validating the screenshot.
+   * @param {GetRegion|Region|By|WebElement|EyesWebElement} region The region or region container to ignore when validating the screenshot.
    * @return {WebdriverioCheckSettings} This instance of the settings object.
    */
-  ignore(regionOrContainer) {
-    if (regionOrContainer instanceof By) {
-      this._ignoreRegions.push(new IgnoreRegionBySelector(regionOrContainer));
-    } else if (regionOrContainer instanceof WebElement) {
-      this._ignoreRegions.push(new IgnoreRegionByElement(regionOrContainer));
+  ignore(region) {
+    if (region instanceof By) {
+      this._ignoreRegions.push(new IgnoreRegionBySelector(region));
+    } else if (region instanceof WebElement) {
+      this._ignoreRegions.push(new IgnoreRegionByElement(region));
     } else {
-      super.ignoreRegions(regionOrContainer);
+      super.ignoreRegions(region);
     }
 
     return this;
