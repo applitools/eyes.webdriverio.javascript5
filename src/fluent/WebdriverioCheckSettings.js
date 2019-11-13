@@ -84,7 +84,7 @@ class WebdriverioCheckSettings extends CheckSettings {
   }
 
   /**
-   * @param {Integer|String|By|WebElement|EyesWebElement} frame The frame to switch to.
+   * @param {Integer|String|By|WebElement|EyesWebElement} frame - The frame to switch to.
    * @returns {WebdriverioCheckSettings}
    */
   frame(frame) {
@@ -110,8 +110,8 @@ class WebdriverioCheckSettings extends CheckSettings {
    * Adds a region to ignore.
    *
    * @override
-   * @param {GetRegion|Region|By|WebElement|EyesWebElement} region The region or region container to ignore when validating the screenshot.
-   * @return {WebdriverioCheckSettings} This instance of the settings object.
+   * @param {GetRegion|Region|By|WebElement|EyesWebElement} region - The region or region container to ignore when validating the screenshot.
+   * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   ignore(region) {
     if (region instanceof By) {
@@ -131,8 +131,8 @@ class WebdriverioCheckSettings extends CheckSettings {
    * Adds one or more ignore regions.
    *
    * @override
-   * @param {(GetRegion|Region|By|WebElement|EyesWebElement)...} regionsOrContainers One or more regions or region containers to ignore when validating the screenshot.
-   * @return {WebdriverioCheckSettings} This instance of the settings object.
+   * @param {...(GetRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers - One or more regions or region containers to ignore when validating the screenshot.
+   * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   ignores(...regionsOrContainers) {
     super.ignoreRegions(...regionsOrContainers);
@@ -199,7 +199,7 @@ class WebdriverioCheckSettings extends CheckSettings {
    * @param {int} [maxDownOffset] How much the content can move down.
    * @param {int} [maxLeftOffset] How much the content can move to the left.
    * @param {int} [maxRightOffset] How much the content can move to the right.
-   * @return {WebdriverioCheckSettings} This instance of the settings object.
+   * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   floating(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset) {
     if (regionOrContainer instanceof By) {
@@ -218,8 +218,8 @@ class WebdriverioCheckSettings extends CheckSettings {
    *
    * @override
    * @param {int} maxOffset How much each of the content rectangles can move in any direction.
-   * @param {(GetFloatingRegion|Region|By|WebElement|EyesWebElement)...} regionsOrContainers One or more content rectangles or region containers
-   * @return {WebdriverioCheckSettings} This instance of the settings object.
+   * @param {...(GetFloatingRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers One or more content rectangles or region containers
+   * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   floatings(maxOffset, ...regionsOrContainers) {
     super.floatings(maxOffset, ...regionsOrContainers);
@@ -229,8 +229,7 @@ class WebdriverioCheckSettings extends CheckSettings {
   // noinspection JSCheckFunctionSignatures
   /**
    * @inheritDoc
-   * @param {GetAccessibilityRegion|Region|AccessibilityMatchSettings|By|WebElement|EyesWebElement} regionOrContainer -
-   *   The content rectangle or region container
+   * @param {GetAccessibilityRegion|Region|AccessibilityMatchSettings|By|WebElement|EyesWebElement} regionOrContainer - The content rectangle or region container
    * @param {AccessibilityRegionType} [regionType] - Type of accessibility.
    * @return {this}
    */
@@ -249,7 +248,7 @@ class WebdriverioCheckSettings extends CheckSettings {
 
   /**
    *
-   * @param [timeoutMilliseconds]
+   * @param {int} [timeoutMilliseconds] 
    * @returns {WebdriverioCheckSettings}
    */
   timeout(timeoutMilliseconds = USE_DEFAULT_MATCH_TIMEOUT) {
@@ -263,7 +262,7 @@ class WebdriverioCheckSettings extends CheckSettings {
    *
    * @override
    * @param {boolean} [fully]
-   * @return {WebdriverioCheckSettings} This instance of the settings object.
+   * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   fully(fully) {
     super.fully(fully);
