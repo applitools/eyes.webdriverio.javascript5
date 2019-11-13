@@ -6,7 +6,7 @@ const { TestResultsStatus } = require('@applitools/eyes-sdk-core');
 
 const { TestResultContainer } = require('./TestResultContainer');
 
-class TestResultSummary {
+class TestResultsSummary {
   /**
    * @param {(TestResults|Error|TestResultContainer)[]} allResults
    */
@@ -87,4 +87,4 @@ class TestResultSummary {
   }
 }
 
-exports.TestResultSummary = TestResultSummary;
+exports.TestResultsSummary = TestResultsSummary;

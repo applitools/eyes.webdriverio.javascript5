@@ -130,6 +130,7 @@ class WebdriverioCheckSettings extends CheckSettings {
   /**
    * Adds one or more ignore regions.
    *
+   * @deprecated
    * @override
    * @param {...(GetRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers - One or more regions or region containers to ignore when validating the screenshot.
    * @return {WebdriverioCheckSettings} - This instance of the settings object.
@@ -188,8 +189,19 @@ class WebdriverioCheckSettings extends CheckSettings {
     return super._regionToRegionProvider(region);
   }
 
+  /**
+   * @deprecated
+   * @param regionOrContainer
+   * @param maxUpOffset
+   * @param maxDownOffset
+   * @param maxLeftOffset
+   * @param maxRightOffset
+   */
+  floating(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset) {
+    return this.floatingRegion(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset);
+  }
 
-  // noinspection JSCheckFunctionSignatures
+    // noinspection JSCheckFunctionSignatures
   /**
    * Adds a floating region. A floating region is a a region that can be placed within the boundaries of a bigger region.
    *
@@ -201,7 +213,7 @@ class WebdriverioCheckSettings extends CheckSettings {
    * @param {int} [maxRightOffset] How much the content can move to the right.
    * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
-  floating(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset) {
+  floatingRegion(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset) {
     if (regionOrContainer instanceof By) {
       this._floatingRegions.push(new FloatingRegionBySelector(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset));
     } else if (regionOrContainer instanceof WebElement) {
@@ -212,7 +224,16 @@ class WebdriverioCheckSettings extends CheckSettings {
     return this;
   }
 
-  // noinspection JSCheckFunctionSignatures
+  /**
+   * @deprecated
+   * @param maxOffset
+   * @param regionsOrContainers
+   */
+  floatings(maxOffset, ...regionsOrContainers) {
+    return this.floatingRegions(maxOffset, ...regionsOrContainers);
+  }
+
+    // noinspection JSCheckFunctionSignatures
   /**
    * Adds a floating region. A floating region is a a region that can be placed within the boundaries of a bigger region.
    *
@@ -221,8 +242,8 @@ class WebdriverioCheckSettings extends CheckSettings {
    * @param {...(GetFloatingRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers One or more content rectangles or region containers
    * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
-  floatings(maxOffset, ...regionsOrContainers) {
-    super.floatings(maxOffset, ...regionsOrContainers);
+  floatingRegions(maxOffset, ...regionsOrContainers) {
+    super.floatingRegions(maxOffset, ...regionsOrContainers);
     return this;
   }
 

@@ -15,7 +15,7 @@ const {
   BrowserType,
 } = require('@applitools/eyes-sdk-core');
 
-const {TestResultSummary} = require('./runner/TestResultSummary');
+const {TestResultsSummary} = require('./runner/TestResultsSummary');
 const EyesWebDriver = require('./wrappers/EyesWebDriver');
 const EyesWDIOUtils = require('./EyesWDIOUtils');
 const WDIOJSExecutor = require('./WDIOJSExecutor');
@@ -199,17 +199,17 @@ class EyesVisualGrid extends EyesBase {
     try {
       let resultsPromise = this._closePromise || this._closeCommand();
       const res = await resultsPromise;
-      const testResultSummary = new TestResultSummary(res);
+      const testResultsSummary = new TestResultsSummary(res);
 
       if (throwEx === true) {
-        for (const result of testResultSummary.getAllResults()) {
+        for (const result of testResultsSummary.getAllResults()) {
           if (result.getException()) {
             throw result.getException();
           }
         }
       }
 
-      return testResultSummary;
+      return testResultsSummary;
     } finally {
       this._isOpen = false;
       this._closePromise = undefined;
@@ -328,7 +328,7 @@ class EyesVisualGrid extends EyesBase {
       targetSelector = await targetSelector.getSelector(this);
     }
 
-    const pageDomResults = await capturePageDom({ executeScript: this._jsExecutor.executeScript.bind(this._jsExecutor) });
+    const pageDomResults = await capturePageDom({executeScript: this._jsExecutor.executeScript.bind(this._jsExecutor)});
     const {cdt, url: pageUrl, blobs, resourceUrls, frames} = pageDomResults;
 
     if (this.getCorsIframeHandle() === CorsIframeHandle.BLANK) {
@@ -510,15 +510,17 @@ class EyesVisualGrid extends EyesBase {
   getConfiguration() {
     return this._configuration;
   }
+
   /**
-    * @param {string} apiKey
-    */
+   * @param {string} apiKey
+   */
   setApiKey(apiKey) {
     this._configuration.setApiKey(apiKey);
   }
+
   /**
-    * @return {string}
-    */
+   * @return {string}
+   */
   getApiKey() {
     return this._configuration.getApiKey();
   }
@@ -555,7 +557,7 @@ class EyesVisualGrid extends EyesBase {
           newRegions.push(plainRegion);
         } else {
           const selector = await region.getSelector(this);
-          newRegions.push({ selector });
+          newRegions.push({selector});
         }
       }
 
