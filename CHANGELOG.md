@@ -1,3 +1,7 @@
+## [unversioned] -  
+### Fixed
+- Fix documentation issues. [Trello 1240](https://trello.com/c/xIM3eqfN)
+
 ## [5.8.3] - 2019-11-09 
 ### Fixed
 - Fix css stitching for new chrome 78 (bug in chrome). [Trello 1206](https://trello.com/c/euVqe1Sv)
