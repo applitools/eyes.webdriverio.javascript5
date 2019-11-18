@@ -206,11 +206,11 @@ class WebdriverioCheckSettings extends CheckSettings {
    * Adds a floating region. A floating region is a a region that can be placed within the boundaries of a bigger region.
    *
    * @override
-   * @param {GetFloatingRegion|Region|FloatingMatchSettings|By|WebElement|EyesWebElement} regionOrContainer The content rectangle or region container
-   * @param {int} [maxUpOffset] How much the content can move up.
-   * @param {int} [maxDownOffset] How much the content can move down.
-   * @param {int} [maxLeftOffset] How much the content can move to the left.
-   * @param {int} [maxRightOffset] How much the content can move to the right.
+   * @param {GetFloatingRegion|Region|FloatingMatchSettings|By|WebElement|EyesWebElement} regionOrContainer - The content rectangle or region container
+   * @param {int} [maxUpOffset] - How much the content can move up.
+   * @param {int} [maxDownOffset] - How much the content can move down.
+   * @param {int} [maxLeftOffset] - How much the content can move to the left.
+   * @param {int} [maxRightOffset] - How much the content can move to the right.
    * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   floatingRegion(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset) {
@@ -238,8 +238,8 @@ class WebdriverioCheckSettings extends CheckSettings {
    * Adds a floating region. A floating region is a a region that can be placed within the boundaries of a bigger region.
    *
    * @override
-   * @param {int} maxOffset How much each of the content rectangles can move in any direction.
-   * @param {...(GetFloatingRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers One or more content rectangles or region containers
+   * @param {int} maxOffset - How much each of the content rectangles can move in any direction.
+   * @param {...(GetFloatingRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers - One or more content rectangles or region containers
    * @return {WebdriverioCheckSettings} - This instance of the settings object.
    */
   floatingRegions(maxOffset, ...regionsOrContainers) {
