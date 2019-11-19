@@ -16,6 +16,9 @@ class Eyes {
   /**
    * Creates a new (possibly disabled) Eyes instance that interacts with the Eyes Server at the specified url.
    *
+   * @signature Eyes(runner)
+   * @sigparam {EyesRunner} [runner] - VisualGridRunner or ClassicRunner (default)
+   *
    * @param {string|boolean|VisualGridRunner} [serverUrl=EyesBase.getDefaultServerUrl()] The Eyes server URL.
    * @param {boolean} [isDisabled=false] Set to true to disable Applitools Eyes and use the webdriver directly.
    * @param {EyesRunner} [runner]
