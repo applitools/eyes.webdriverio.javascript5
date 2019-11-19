@@ -191,17 +191,17 @@ class WebdriverioCheckSettings extends CheckSettings {
 
   /**
    * @deprecated
-   * @param regionOrContainer
-   * @param maxUpOffset
-   * @param maxDownOffset
-   * @param maxLeftOffset
-   * @param maxRightOffset
+   * @param {GetFloatingRegion|Region|FloatingMatchSettings|By|WebElement|EyesWebElement} regionOrContainer
+   * @param {int} maxUpOffset
+   * @param {int} maxDownOffset
+   * @param {int} maxLeftOffset
+   * @param {int} maxRightOffset
    */
   floating(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset) {
     return this.floatingRegion(regionOrContainer, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset);
   }
 
-    // noinspection JSCheckFunctionSignatures
+  // noinspection JSCheckFunctionSignatures
   /**
    * Adds a floating region. A floating region is a a region that can be placed within the boundaries of a bigger region.
    *
@@ -226,14 +226,14 @@ class WebdriverioCheckSettings extends CheckSettings {
 
   /**
    * @deprecated
-   * @param maxOffset
-   * @param regionsOrContainers
+   * @param {int} maxOffset
+   * @param {...(GetFloatingRegion|Region|By|WebElement|EyesWebElement)} regionsOrContainers
    */
   floatings(maxOffset, ...regionsOrContainers) {
     return this.floatingRegions(maxOffset, ...regionsOrContainers);
   }
 
-    // noinspection JSCheckFunctionSignatures
+  // noinspection JSCheckFunctionSignatures
   /**
    * Adds a floating region. A floating region is a a region that can be placed within the boundaries of a bigger region.
    *
@@ -269,7 +269,7 @@ class WebdriverioCheckSettings extends CheckSettings {
 
   /**
    *
-   * @param {int} [timeoutMilliseconds] 
+   * @param {int} [timeoutMilliseconds]
    * @returns {WebdriverioCheckSettings}
    */
   timeout(timeoutMilliseconds = USE_DEFAULT_MATCH_TIMEOUT) {
