@@ -17,8 +17,8 @@ describe('CropUrlAndStatusOnIos', function () {
   });
 
   beforeEach(async () => {
-    const chrome = Common.MOBILE_IOS_SAFARI;
-    browser = await remote(chrome);
+    const caps = Common.MOBILE_IOS_SAFARI;
+    browser = await remote(caps);
   });
 
   afterEach(async () => {
