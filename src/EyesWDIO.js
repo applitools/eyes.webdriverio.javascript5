@@ -164,6 +164,7 @@ class EyesWDIO extends EyesBase {
 
     if (driver && driver.isMobile) { // set viewportSize to null if browser is mobile
       viewportSize = null;
+      this._configuration.setViewportSize(null);
     }
 
     this._screenshotFactory = new EyesWDIOScreenshotFactory(this._logger, this._driver);

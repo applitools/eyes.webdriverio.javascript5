@@ -75,6 +75,22 @@ class Common {
     }
   };
 
+  static get MOBILE_IOS_NATIVE_APP() {
+    return {
+      remoteHost: "http://127.0.0.1:4723/wd/hub",
+      hostname: "127.0.0.1",
+      port: 4723,
+      capabilities: {
+        app: 'https://store.applitools.com/download/iOS.TestApp.app.zip',
+        browserName: '',
+        deviceOrientation: 'portrait',
+        deviceName: 'iPhone 11',
+        platformName: 'iOS',
+        platformVersion: '13.2',
+      }
+    }
+  };
+
   /**
    *
    * @param {Object} options
