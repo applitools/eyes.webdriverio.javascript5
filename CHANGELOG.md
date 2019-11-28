@@ -1,3 +1,7 @@
+## [5.8.4] - 2019-11-28 
+### Fixed
+- Updated VGC to 13.3.6: supporting http only proxy. [Trello 976](https://trello.com/c/cOquuvWo/976-axios-adding-support-to-proxy-of-http-over-https)
+
 ## [5.8.3] - 2019-11-09 
 ### Fixed
 - Fix css stitching for new chrome 78 (bug in chrome). [Trello 1206](https://trello.com/c/euVqe1Sv)

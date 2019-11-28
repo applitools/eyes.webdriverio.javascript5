@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-webdriverio",
-  "version": "5.8.3",
+  "version": "5.8.4",
   "description": "Applitools Eyes SDK for WebdriverIO",
   "keywords": [
     "eyes-webdriverio",
@@ -34,7 +34,7 @@
   "dependencies": {
     "@applitools/dom-utils": "~4.6.38",
     "@applitools/eyes-sdk-core": "~5.20.2",
-    "@applitools/visual-grid-client": "~12.36.6",
+    "@applitools/visual-grid-client": "^13.3.6",
     "chromedriver": "^78.0.1",
     "geckodriver": "^1.19.0",
     "selenium-webdriver": "^4.0.0-alpha.5",
