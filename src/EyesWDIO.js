@@ -8,6 +8,7 @@ const {
   FixedScaleProviderFactory,
   FullPageCaptureAlgorithm,
   Location,
+  MatchResult,
   MutableImage,
   NullCutProvider,
   NullScaleProvider,
@@ -33,6 +34,7 @@ const ScrollPositionProvider = require('./positioning/ScrollPositionProvider');
 const RegionPositionCompensationFactory = require('./positioning/RegionPositionCompensationFactory');
 const EyesWebDriver = require('./wrappers/EyesWebDriver');
 const EyesWebElement = require('./wrappers/EyesWebElement');
+const EyesTargetLocator = require('./wrappers/EyesTargetLocator');
 const EyesWDIOScreenshot = require('./capture/EyesWDIOScreenshot');
 const FrameChain = require('./frames/FrameChain');
 const EyesWDIOScreenshotFactory = require('./capture/EyesWDIOScreenshotFactory');
@@ -109,7 +111,7 @@ class EyesWDIO extends EyesBase {
     /** @type {EyesWebElement} */
     this._targetElement = null;
     /** @type {Location} */
-    this._targetElementLocation = null;
+    this._imageLocation = null;
     /** @type {ElementPositionProvider} */
     this._elementPositionProvider = undefined;
     /** @type {int} */
@@ -152,7 +154,7 @@ class EyesWDIO extends EyesBase {
     ArgumentGuard.notNull(this._configuration.getAppName(), 'appName');
     ArgumentGuard.notNull(this._configuration.getTestName(), 'testName');
 
-    if (!this._configuration.getViewportSize()) {
+    if (!this._configuration.getViewportSize() && driver && !driver.isMobile) {
       const vs = await this._driver.getDefaultContentViewportSize();
       this._configuration.setViewportSize(vs);
     }
@@ -180,8 +182,6 @@ class EyesWDIO extends EyesBase {
     await this.openBase(this._configuration.getAppName(), this._configuration.getTestName(), this._configuration.getViewportSize(), this._configuration.getSessionType());
 
     this._devicePixelRatio = EyesWDIO.UNKNOWN_DEVICE_PIXEL_RATIO;
-
-    this._initPositionProvider();
 
     this._driver.rotation = this._rotation;
 
@@ -285,91 +285,113 @@ class EyesWDIO extends EyesBase {
    * @returns {Promise.<*>}
    */
   async check(name, checkSettings) {
+    if (this._configuration.getIsDisabled()) {
+      this._logger.log(`check('${name}', ${checkSettings}): Ignored`);
+      return new MatchResult();
+    }
+
     ArgumentGuard.notNull(checkSettings, "checkSettings");
+    ArgumentGuard.isValidState(this._isOpen, 'Eyes not open');
+
+    if (TypeUtils.isNotNull(name)) {
+      checkSettings.withName(name);
+    } else {
+      name = checkSettings.getName();
+    }
 
     checkSettings.ignoreCaret(checkSettings.getIgnoreCaret() || this.getIgnoreCaret());
-
     this._checkSettings = checkSettings;
 
-    let result;
-    const that = this;
-    return that.getPositionProvider().setPosition(Location.ZERO).then(() => {
-      that._logger.verbose(`check("${name}", checkSettings) - begin`);
-      that._stitchContent = checkSettings.getStitchContent();
-      const targetRegion = checkSettings.getTargetRegion();
 
-      let switchedToFrameCount;
-      return this._switchToFrame(checkSettings).then(async (switchedToFrameCount_) => {
-        switchedToFrameCount = switchedToFrameCount_;
-        that._regionToCheck = null;
-        that._targetElementLocation = null;
+    this._logger.verbose(`check("${name}", checkSettings) - begin`);
+    this._stitchContent = checkSettings.getStitchContent();
+    const targetRegion = checkSettings.getTargetRegion();
+    this._scrollRootElement = await this._getScrollRootElementFromCheckSettings(checkSettings);
 
-        if (targetRegion) {
-          return this._tryHideScrollbars().then(async () => {
-            that._targetElementLocation = targetRegion.getLocation();
-            const source = await this._driver.getCurrentUrl();
-            const res = await super.checkWindowBase(new RegionProvider(targetRegion), name, false, checkSettings, source);
-            await that._tryRestoreScrollbars();
-            return res;
-          });
+    this._currentFramePositionProvider = null;
+    this.setPositionProvider(this._createPositionProvider());
+    this._originalFC = this._driver.getFrameChain().clone();
+
+    if (!(await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver))) {
+      this._logger.verbose(`URL: ${await this._driver.getCurrentUrl()}`);
+    }
+
+    const switchedToFrameCount = await this._switchToFrame(checkSettings);
+
+    this._regionToCheck = null;
+
+    let result = null;
+
+    const switchTo = this._driver.switchTo();
+
+    this._imageLocation = null;
+
+    const originalFC = await this._tryHideScrollbars();
+    if (targetRegion) {
+      this._logger.verbose('have target region');
+      this._imageLocation = targetRegion.getLocation();
+      const source = await this._driver.getCurrentUrl();
+      result = await super.checkWindowBase(new RegionProvider(targetRegion), name, false, checkSettings, source);
+    } else if (checkSettings) {
+      let targetElement = checkSettings.targetElement;
+      const targetSelector = checkSettings.targetSelector;
+      if (!targetElement && targetSelector) {
+        targetElement = await this._driver.findElement(targetSelector);
+      }
+
+      if (targetElement) {
+        this._logger.verbose('have target element');
+        this._targetElement = targetElement instanceof EyesWebElement ? targetElement : new EyesWebElement(this._logger, this._driver, targetElement);
+        if (this._stitchContent) {
+          return this._checkElement(name, checkSettings);
+        } else {
+          return this._checkRegion(name, checkSettings);
         }
-
-        if (checkSettings) {
-          const targetSelector = checkSettings.targetSelector;
-          let targetElement = checkSettings.targetElement;
-          if (!targetElement && targetSelector) {
-            targetElement = await that._driver.findElement(targetSelector);
-          }
-
-          if (targetElement) {
-            that._targetElement = targetElement instanceof EyesWebElement ? targetElement : new EyesWebElement(that._logger, that._driver, targetElement);
-            if (that._stitchContent) {
-              return that._checkElement(name, checkSettings);
-            } else {
-              return that._checkRegion(name, checkSettings);
-            }
-          } else if (checkSettings.getFrameChain().length > 0) {
-            if (that._stitchContent) {
-              return that._checkFullFrameOrElement(name, checkSettings);
-            } else {
-              return that._checkFrameFluent(name, checkSettings);
-            }
-          } else {
-            let res;
-            let originalPosition;
-
-            return this._driver.switchTo().defaultContent().then(() => {
-              return that.getPositionProvider().getState();
-            }).then(originalPosition_ => {
-              originalPosition = originalPosition_;
-              return that.getPositionProvider().setPosition(Location.ZERO);
-            }).then(() => {
-              return that._tryHideScrollbars();
-            }).then(async () => {
-              const source = await this._driver.getCurrentUrl();
-              return super.checkWindowBase(new NullRegionProvider(), name, false, checkSettings, source);
-            }).then(res_ => {
-              res = res_;
-              return that.getPositionProvider().restoreState(originalPosition);
-            }).then(() => {
-              return that._tryRestoreScrollbars();
-            }).then(() => {
-              return res;
-            });
-          }
+        this._targetElement = null;
+      } else if (checkSettings.getFrameChain().length > 0) {
+        this._logger.verbose('have frame chain');
+        if (this._stitchContent) {
+          return this._checkFullFrameOrElement(name, checkSettings);
+        } else {
+          return this._checkFrameFluent(name, checkSettings);
         }
-      }).then(r => {
-        result = r;
-        that._targetElement = null;
-        that._targetElementLocation = null;
-        return that._switchToParentFrame(switchedToFrameCount);
-      }).then(() => {
-        that._stitchContent = false;
-        that._logger.verbose("check - done!");
+      } else {
+        this._logger.verbose('default case');
 
-        return result;
-      });
-    });
+        if (!(await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver))) {
+          await this._driver.switchTo().defaultContent();
+          const scrollRootElement = await this.getScrollRootElement();
+          this._currentFramePositionProvider = this._createPositionProvider(scrollRootElement);
+        }
+        const source = await this._driver.getCurrentUrl();
+        result = await this.checkWindowBase(new NullRegionProvider(), name, false, checkSettings, source);
+        await switchTo.frames(this._originalFC);
+      }
+    }
+
+    if (!result) {
+      result = new MatchResult();
+    }
+
+    await this._switchToParentFrame(switchedToFrameCount);
+
+    if (this._positionMemento) {
+      await this._positionProviderHandler.get().restoreState(this._positionMemento);
+      this._positionMemento = null;
+    }
+
+    await switchTo.resetScroll();
+
+    if (originalFC) {
+      await this._tryRestoreScrollbars(originalFC);
+    }
+
+    await this._trySwitchToFrames(switchTo, this._originalFC);
+    this._stitchContent = false;
+    this._imageLocation = null;
+
+    this._logger.verbose("check - done!");
+    return result;
   }
 
 
@@ -385,7 +407,7 @@ class EyesWDIO extends EyesBase {
       /** @override */
       async getRegion() {
         const p = await that._targetElement.getLocation();
-        that._targetElementLocation = p;
+        that._imageLocation = p;
         const d = await that._targetElement.getSize();
         return new Region(Math.ceil(p.getX()), Math.ceil(p.getY()), d.getWidth(), d.getHeight(), CoordinatesType.CONTEXT_RELATIVE);
       }
@@ -424,7 +446,7 @@ class EyesWDIO extends EyesBase {
       originalScrollPosition = originalScrollPosition_;
       return eyesElement.getLocation();
     }).then(pl => {
-      that._targetElementLocation = pl;
+      that._imageLocation = pl;
       that._checkFrameOrElement = true;
 
       let elementLocation, elementSize;
@@ -488,7 +510,7 @@ class EyesWDIO extends EyesBase {
       that.setPositionProvider(originalPositionProvider);
       that._regionToCheck = null;
       that._elementPositionProvider = null;
-      that._targetElementLocation = null;
+      that._imageLocation = null;
 
       return originalPositionProvider.restoreState(originalPositionMemento);
     }).then(() => {
@@ -528,30 +550,39 @@ class EyesWDIO extends EyesBase {
     if (this._devicePixelRatio === EyesWDIO.UNKNOWN_DEVICE_PIXEL_RATIO && this._scaleProviderHandler.get() instanceof NullScaleProvider) {
       this._logger.verbose("Trying to extract device pixel ratio...");
 
-      const that = this;
-      return EyesWDIOUtils.getDevicePixelRatio(that._jsExecutor).then(ratio => {
-        that._devicePixelRatio = ratio;
-      }).catch(async (err) => {
-        if (EyesWDIOUtils.isMobileDevice(that._driver.remoteWebDriver)) {
-          that._devicePixelRatio = await that._getMobilePixelRation();
-        } else {
-          throw err;
-        }
-      }).catch(err => {
-        that._logger.verbose("Failed to extract device pixel ratio! Using default.", err);
-        that._devicePixelRatio = EyesWDIO.DEFAULT_DEVICE_PIXEL_RATIO;
-      }).then(() => {
-        that._logger.verbose(`Device pixel ratio: ${that._devicePixelRatio}`);
-        that._logger.verbose("Setting scale provider...");
-        return that._getScaleProviderFactory();
-      }).catch(err => {
-        that._logger.verbose("Failed to set ContextBasedScaleProvider.", err);
-        that._logger.verbose("Using FixedScaleProvider instead...");
-        return new FixedScaleProviderFactory(1 / that._devicePixelRatio, that._scaleProviderHandler);
-      }).then(factory => {
-        that._logger.verbose("Done!");
-        return factory;
-      });
+      if (!(await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver))) {
+        const that = this;
+        return EyesWDIOUtils.getDevicePixelRatio(that._jsExecutor).then(ratio => {
+          that._devicePixelRatio = ratio;
+        }).catch(async (err) => {
+          if (EyesWDIOUtils.isMobileDevice(that._driver.remoteWebDriver)) {
+            that._devicePixelRatio = await that._getMobilePixelRation();
+          } else {
+            throw err;
+          }
+        }).catch(err => {
+          that._logger.verbose("Failed to extract device pixel ratio! Using default.", err);
+          that._devicePixelRatio = EyesWDIO.DEFAULT_DEVICE_PIXEL_RATIO;
+        }).then(() => {
+          that._logger.verbose(`Device pixel ratio: ${that._devicePixelRatio}`);
+          that._logger.verbose("Setting scale provider...");
+          return that._getScaleProviderFactory();
+        }).catch(err => {
+          that._logger.verbose("Failed to set ContextBasedScaleProvider.", err);
+          that._logger.verbose("Using FixedScaleProvider instead...");
+          return new FixedScaleProviderFactory(1 / that._devicePixelRatio, that._scaleProviderHandler);
+        }).then(factory => {
+          that._logger.verbose("Done!");
+          return factory;
+        });
+      } else {
+        this._logger.verbose("Native App");
+        this._devicePixelRatio = EyesWDIO.DEFAULT_DEVICE_PIXEL_RATIO;
+        this._logger.verbose("Setting native app scale provider...");
+
+        this._logger.verbose("Done!");
+        return new FixedScaleProviderFactory(1 / this._devicePixelRatio, this._scaleProviderHandler);
+      }
     }
 
     // If we already have a scale provider set, we'll just use it, and pass a mock as provider handler.
@@ -575,7 +606,7 @@ class EyesWDIO extends EyesBase {
       /** @override */
       async getRegion() {
         const region = await that._getFullFrameOrElementRegion();
-        that._targetElementLocation = region.getLocation();
+        that._imageLocation = region.getLocation();
         return region;
       }
     };
@@ -625,6 +656,24 @@ class EyesWDIO extends EyesBase {
 
   /**
    * @private
+   * @param {EyesTargetLocator} switchTo
+   * @param {FrameChain} frames
+   * @return {Promise}
+   */
+  async _trySwitchToFrames(switchTo, frames) {
+    if (await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
+      return;
+    }
+
+    try {
+      await switchTo.frames(frames);
+    } catch (err) {
+      this._logger.log(`WARNING: Failed to switch to original frame chain! ${err}`);
+    }
+  }
+
+  /**
+   * @private
    * @return {Promise}
    */
   async _checkFrameFluent(name, checkSettings) {
@@ -635,7 +684,7 @@ class EyesWDIO extends EyesBase {
     await this._driver.switchTo().framesDoScroll(frameChain);
     const r = await this._checkRegion(name, checkSettings);
     this._targetElement = null;
-    this._targetElementLocation = Location.ZERO;
+    this._imageLocation = Location.ZERO;
     return r;
   }
 
@@ -943,17 +992,18 @@ class EyesWDIO extends EyesBase {
   };
 
 
-  /** @private */
-  _initPositionProvider() {
+  /**
+   *  @private
+   * @return {PositionProvider}
+   */
+  _createPositionProvider(scrollRootElement = this._scrollRootElement) {
     // Setting the correct position provider.
-    const stitchMode = this._configuration.getStitchMode();
-    this._logger.verbose(`initializing position provider. stitchMode: ${stitchMode}`);
-    switch (stitchMode) {
+    this._logger.verbose(`initializing position provider. stitchMode: ${this._configuration.getStitchMode()}`);
+    switch (this._configuration.getStitchMode()) {
       case StitchMode.CSS:
-        this.setPositionProvider(new CssTranslatePositionProvider(this._logger, this._jsExecutor));
-        break;
+        return new CssTranslatePositionProvider(this._logger, this._jsExecutor, scrollRootElement);
       default:
-        this.setPositionProvider(new ScrollPositionProvider(this._logger, this._jsExecutor));
+        return new ScrollPositionProvider(this._logger, this._jsExecutor, scrollRootElement);
     }
   }
 
@@ -1017,75 +1067,82 @@ class EyesWDIO extends EyesBase {
 
   /**
    * @private
-   * @return {Promise}
+   * @return {Promise<FrameChain>}
    */
   async _tryHideScrollbars() {
-    if (EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
-      return;
+    const isMobile = await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver);
+    if ((isMobile)) {
+      return new FrameChain(this._logger);
     }
-    if (this._hideScrollbars || this._scrollRootElement) {
-      const originalFC = new FrameChain(this._logger, this._driver.getFrameChain());
-      const fc = new FrameChain(this._logger, this._driver.getFrameChain());
-      const scrollRootElement = await this.getScrollRootElement();
-      this._originalOverflow = await EyesWDIOUtils.hideScrollbars(this._jsExecutor, 200, scrollRootElement.element);
-      await this._tryHideScrollbarsLoop(fc);
+
+    if (this._configuration.getHideScrollbars() || (this._configuration.getStitchMode() === StitchMode.CSS && this._stitchContent)) {
+      const originalFC = this._driver.getFrameChain().clone();
+      const fc = this._driver.getFrameChain().clone();
+      let frame = fc.peek();
+
+      if (fc.size() > 0) {
+        while (fc.size() > 0) {
+          this._logger.verbose(`fc.Count = ${fc.size()}`);
+
+          if (this._stitchContent || fc.size() !== originalFC.size()) {
+            if (frame === null) {
+              this._logger.verbose('hiding scrollbars of element (1)');
+              await EyesWDIOUtils.setOverflow(this._jsExecutor, 'hidden', this._scrollRootElement);
+              // await EyesSeleniumUtils.hideScrollbars(this._driver, 200, this._scrollRootElement);
+            } else {
+              await frame.hideScrollbars(this._driver);
+            }
+          }
+
+          await this._driver.switchTo().parentFrame();
+          fc.pop();
+          frame = fc.peek();
+        }
+      } else {
+        this._logger.verbose('hiding scrollbars of element (2)');
+        this._originalOverflow = await EyesWDIOUtils.setOverflow(this._jsExecutor, 'hidden', this._scrollRootElement);
+      }
+
+      this._logger.verbose('switching back to original frame');
       await this._driver.switchTo().frames(originalFC);
+      this._logger.verbose('done hiding scrollbars.');
+      return originalFC;
     }
 
-    return Promise.resolve();
+    return new FrameChain(this._logger);
   }
 
   /**
    * @private
-   * @param {FrameChain} fc
+   * @param {FrameChain} frameChain
    * @return {Promise}
    */
-  async _tryHideScrollbarsLoop(fc) {
-    if (this._hideScrollbars && fc.size() > 0) {
-      await this.getDriver().switchTo().parentFrame();
-      const frame = fc.pop();
-      const scrollRootElement = await this.getScrollRootElement();
-      await EyesWDIOUtils.hideScrollbars(this._jsExecutor, 200, scrollRootElement.element);
-      return this._tryHideScrollbarsLoop(fc);
-    }
-  }
-
-  /**
-   * @private
-   * @return {Promise}
-   */
-  async _tryRestoreScrollbars() {
-    if (EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
+  async _tryRestoreScrollbars(frameChain) {
+    if (await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
       return;
     }
-    if (this._hideScrollbars) {
-      const that = this;
-      const originalFC = new FrameChain(that._logger, that._driver.getFrameChain());
-      const fc = new FrameChain(that._logger, that._driver.getFrameChain());
-      await that._tryRestoreScrollbarsLoop(fc);
-      return that._driver.switchTo().frames(originalFC);
+
+    if (this._configuration.getHideScrollbars() || (this._configuration.getStitchMode() === StitchMode.CSS && this._stitchContent)) {
+      await this._driver.switchTo().frames(frameChain);
+      const originalFC = frameChain.clone();
+      const fc = frameChain.clone();
+      if (fc.size() > 0) {
+        while (fc.size() > 0) {
+          const frame = fc.pop();
+          await frame.returnToOriginalOverflow(this._driver);
+          await EyesTargetLocator.tryParentFrame(this._driver.getRemoteWebDriver().switchTo(), fc);
+        }
+      } else {
+        this._logger.verbose('returning overflow of element to its original value');
+        await EyesWDIOUtils.setOverflow(this._jsExecutor, this._originalOverflow, this._scrollRootElement);
+      }
+      await this._driver.switchTo().frames(originalFC);
+      this._logger.verbose('done restoring scrollbars.');
+    } else {
+      this._logger.verbose('no need to restore scrollbars.');
     }
+    this._driver.getFrameChain().clear();
   }
-
-  /**
-   * @private
-   * @param {FrameChain} fc
-   * @return {Promise}
-   */
-  _tryRestoreScrollbarsLoop(fc) {
-    if (fc.size() > 0) {
-      const that = this;
-      return that.getRemoteWebDriver().switchTo().parentFrame().then(() => {
-        const frame = fc.pop();
-        return frame.getReference().setOverflow(frame.getOriginalOverflow());
-      }).then(() => {
-        return that._tryRestoreScrollbarsLoop(fc);
-      });
-    }
-
-    return Promise.resolve();
-  }
-
 
   /**
    *
@@ -1094,6 +1151,8 @@ class EyesWDIO extends EyesBase {
    */
   async getScreenshot() {
     this._logger.verbose("getScreenshot()");
+
+    const isMobile = await EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver);
 
     const scaleProviderFactory = await this._updateScalingParams();
 
@@ -1114,7 +1173,7 @@ class EyesWDIO extends EyesBase {
     );
 
     let activeElement = null;
-    if (this.getHideCaret()) {
+    if (this.getHideCaret() && !isMobile) {
       try {
         activeElement = await this._driver.executeScript('var activeElement = document.activeElement; activeElement && activeElement.blur(); return activeElement;');
       } catch (err) {
@@ -1123,7 +1182,7 @@ class EyesWDIO extends EyesBase {
     }
 
     let result;
-    if (this._checkFrameOrElement) {
+    if (this._checkFrameOrElement && !isMobile) {
       this._logger.verbose("Check frame/element requested");
 
       await switchTo.frames(originalFrameChain);
@@ -1138,7 +1197,7 @@ class EyesWDIO extends EyesBase {
       this._logger.verbose('Building screenshot object...');
       const size = new RectangleSize(entireFrameOrElement.getWidth(), entireFrameOrElement.getHeight());
       result = await EyesWDIOScreenshot.fromFrameSize(this._logger, this._driver, entireFrameOrElement, size);
-    } else if (this.getForceFullPageScreenshot() || this._stitchContent) {
+    } else if ((this.getForceFullPageScreenshot() || this._stitchContent) && !isMobile) {
       this._logger.verbose('Full page screenshot requested.');
 
       // Save the current frame path.
@@ -1152,7 +1211,7 @@ class EyesWDIO extends EyesBase {
       const fullPageImage = await fullPageCapture.getStitchedRegion(Region.EMPTY, null, this._positionProviderHandler.get());
 
       await switchTo.frames(originalFrameChain);
-      result = await EyesWDIOScreenshot.fromScreenshotType(this._logger, this._driver, fullPageImage, null, originalFramePosition);
+      result = await EyesWDIOScreenshot.fromScreenshotType({logger: this._logger, driver: this._driver, image: fullPageImage, screenshotType: null, frameLocationInScreenshot: originalFramePosition});
     } else {
       await this._ensureElementVisible(this._targetElement);
 
@@ -1176,7 +1235,7 @@ class EyesWDIO extends EyesBase {
       }
 
       this._logger.verbose('Creating screenshot object...');
-      result = await EyesWDIOScreenshot.fromScreenshotType(this._logger, this._driver, screenshotImage);
+      result = await EyesWDIOScreenshot.fromScreenshotType({logger: this._logger, driver: this._driver, image: screenshotImage, isMobile});
     }
 
     if (this.getHideCaret() && activeElement != null) {
@@ -1196,8 +1255,8 @@ class EyesWDIO extends EyesBase {
    * @return {Promise<Location>}
    */
   async getImageLocation() {
-    if (this._targetElementLocation) {
-      return this._targetElementLocation;
+    if (this._imageLocation) {
+      return this._imageLocation;
     }
 
     return Location.ZERO;
@@ -1382,6 +1441,27 @@ class EyesWDIO extends EyesBase {
   }
 
   /**
+   * Gets current frame scroll root element.
+   *
+   * @ignore
+   * @return {Promise<WebElement>} - the current frame scroll root element
+   */
+  async getCurrentFrameScrollRootElement() {
+    const currentFrame = this._driver.getFrameChain().peek();
+
+    let scrollRootElement = null;
+    if (currentFrame) {
+      scrollRootElement = await currentFrame.getForceScrollRootElement(this._driver);
+    }
+
+    if (!scrollRootElement) {
+      scrollRootElement = await this.getScrollRootElement();
+    }
+
+    return scrollRootElement;
+  }
+
+  /**
    * @param {By} element
    */
   setScrollRootElement(element) {
@@ -1392,10 +1472,34 @@ class EyesWDIO extends EyesBase {
    * @return {WebElement}
    */
   async getScrollRootElement() {
+    if (this._scrollRootElement == null && !EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
+      this._scrollRootElement = await this._driver.findElementByTagName('html');
+    }
+
+    return this._scrollRootElement;
+  }
+
+  /**
+   * @private
+   * @param {WebdriverioCheckSettings} scrollRootElementContainer
+   * @return {WebElement}
+   */
+  async _getScrollRootElementFromCheckSettings(scrollRootElementContainer) {
     let scrollRootElement = null;
 
-    if (!EyesWDIOUtils.isMobileDevice(this._driver)) {
-      scrollRootElement = this._scrollRootElement ? this._scrollRootElement : await this._driver.findElementByTagName('html');
+    if (!EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
+      if (!scrollRootElementContainer) {
+        scrollRootElement = await this._driver.findElement(By.css('html'));
+      } else {
+        scrollRootElement = await scrollRootElementContainer.getScrollRootElement();
+
+        if (!scrollRootElement) {
+          const scrollRootSelector = scrollRootElementContainer.getScrollRootSelector();
+          if (scrollRootSelector) {
+            scrollRootElement = await this._driver.findElement(scrollRootSelector);
+          }
+        }
+      }
     }
 
     return scrollRootElement;
@@ -1422,7 +1526,7 @@ class EyesWDIO extends EyesBase {
 
 
   async getTitle() {
-    if (!this._dontGetTitle) {
+    if (!this._dontGetTitle && !EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver)) {
       try {
         return await this._driver.getTitle()
       } catch (e) {
@@ -1615,7 +1719,7 @@ class EyesWDIO extends EyesBase {
    * @return {boolean}
    */
   getSendDom() {
-    return !EyesWDIOUtils.isMobileDevice(this._driver) && super.getSendDom();
+    return !EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver) && super.getSendDom();
   }
 
 }
