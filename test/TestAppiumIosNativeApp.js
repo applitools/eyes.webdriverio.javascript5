@@ -16,7 +16,7 @@ describe('TestIosNativeApp', function () {
 
   beforeEach(async () => {
     const caps = Common.MOBILE_IOS_NATIVE_APP;
-    caps.capabilities.app = '/Users/yurii/WebstormProjects/test-app-wdio/Demo Application.app';
+    caps.capabilities.app = __dirname + '/resources/Demo Application.app';
     browser = await remote(caps);
   });
 
