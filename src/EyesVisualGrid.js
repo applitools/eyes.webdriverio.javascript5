@@ -15,7 +15,7 @@ const {
   BrowserType,
 } = require('@applitools/eyes-sdk-core');
 
-const {TestResultSummary} = require('./runner/TestResultSummary');
+const {TestResultsSummary} = require('./runner/TestResultsSummary');
 const EyesWebDriver = require('./wrappers/EyesWebDriver');
 const EyesWDIOUtils = require('./EyesWDIOUtils');
 const WDIOJSExecutor = require('./WDIOJSExecutor');
@@ -199,17 +199,17 @@ class EyesVisualGrid extends EyesBase {
     try {
       let resultsPromise = this._closePromise || this._closeCommand();
       const res = await resultsPromise;
-      const testResultSummary = new TestResultSummary(res);
+      const TestResultsSummary = new TestResultsSummary(res);
 
       if (throwEx === true) {
-        for (const result of testResultSummary.getAllResults()) {
+        for (const result of TestResultsSummary.getAllResults()) {
           if (result.getException()) {
             throw result.getException();
           }
         }
       }
 
-      return testResultSummary;
+      return TestResultsSummary;
     } finally {
       this._isOpen = false;
       this._closePromise = undefined;

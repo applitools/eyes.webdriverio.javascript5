@@ -1,7 +1,7 @@
 'use strict';
 
 const {EyesRunner} = require('./EyesRunner');
-const {TestResultSummary} = require('./TestResultSummary');
+const {TestResultsSummary} = require('./TestResultsSummary');
 const {TestResultContainer} = require('./TestResultContainer');
 
 class ClassicRunner extends EyesRunner {
@@ -14,7 +14,7 @@ class ClassicRunner extends EyesRunner {
 
   /**
    * @param {boolean} [shouldThrowException=true]
-   * @return {Promise<TestResultSummary>}
+   * @return {Promise<TestResultsSummary>}
    */
   async getAllTestResults(shouldThrowException = true) { // eslint-disable-line no-unused-vars
     const allResults = [];
@@ -23,7 +23,7 @@ class ClassicRunner extends EyesRunner {
     }
 
     await this._closeAllBatches();
-    return new TestResultSummary(allResults);
+    return new TestResultsSummary(allResults);
   }
 }
 
