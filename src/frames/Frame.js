@@ -1,9 +1,9 @@
 'use strict';
 
-const { By } = require('selenium-webdriver');
-const { ArgumentGuard } = require('@applitools/eyes-sdk-core');
-const { ScrollPositionMemento } = require('../positioning/ScrollPositionMemento');
-const { ScrollPositionProvider } = require('../positioning/ScrollPositionProvider');
+const {By} = require('selenium-webdriver');
+const {ArgumentGuard} = require('@applitools/eyes-sdk-core');
+const ScrollPositionMemento = require('../positioning/ScrollPositionMemento');
+const ScrollPositionProvider = require('../positioning/ScrollPositionProvider');
 
 /**
  * Encapsulates a frame/iframe. This is a generic type class, and it's actual type is determined by the reference used
@@ -111,7 +111,7 @@ class Frame {
   async hideScrollbars(driver) {
     const scrollRootElement = await this.getForceScrollRootElement(driver);
     this._logger.verbose('hiding scrollbars of element:', scrollRootElement);
-    this._originalOverflow = await this._jsExecutor.executeScript("var origOF = arguments[0].style.overflow; arguments[0].style.overflow='hidden'; return origOF;", scrollRootElement);
+    this._originalOverflow = await this._jsExecutor.executeScript("var origOF = arguments[0].style.overflow; arguments[0].style.overflow='hidden'; return origOF;", scrollRootElement.element);
   }
 
   /**
@@ -121,7 +121,7 @@ class Frame {
   async returnToOriginalOverflow(driver) {
     const scrollRootElement = await this.getForceScrollRootElement(driver);
     this._logger.verbose('returning overflow of element to its original value:', scrollRootElement);
-    await this._jsExecutor.executeScript(`arguments[0].style.overflow='${this._originalOverflow}';`, scrollRootElement);
+    await this._jsExecutor.executeScript(`arguments[0].style.overflow='${this._originalOverflow}';`, scrollRootElement.element);
   }
 
   /**
@@ -130,9 +130,9 @@ class Frame {
    */
   async returnToOriginalPosition(driver) {
     const scrollRootElement = await this.getForceScrollRootElement(driver);
-    const positionProvider = new ScrollPositionProvider(this._logger, this._jsExecutor, scrollRootElement);
+    const positionProvider = new ScrollPositionProvider(this._logger, this._jsExecutor, scrollRootElement.element);
     await positionProvider.restoreState(this._positionMemento);
   }
 }
 
-exports.Frame = Frame;
+module.exports = Frame;

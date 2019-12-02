@@ -337,7 +337,7 @@ class EyesTargetLocator extends TargetLocator {
         originalOverflow = overflow;
       });
     }).then(() => {
-      const frame = new Frame(that._logger, targetFrame, contentLocation, elementSize, clientSize, originalLocation, originalOverflow);
+      const frame = new Frame(that._logger, targetFrame, contentLocation, elementSize, clientSize, originalLocation, that._tsInstance);
       that._tsInstance.getFrameChain().push(frame);
     });
   }

@@ -41,6 +41,7 @@ const EyesWDIOScreenshotFactory = require('./capture/EyesWDIOScreenshotFactory')
 const EyesWDIOUtils = require('./EyesWDIOUtils');
 const ElementPositionProvider = require('./positioning/ElementPositionProvider');
 const StitchMode = require('./StitchMode');
+const {By} = require('./By');
 const Target = require('./fluent/Target');
 const WDIOJSExecutor = require('./WDIOJSExecutor');
 const WebDriver = require('./wrappers/WebDriver');
@@ -1019,12 +1020,12 @@ class EyesWDIO extends EyesBase {
 
   /** @override */
   beforeOpen() {
-    return this._tryHideScrollbars();
+    // return this._tryHideScrollbars();
   }
 
   /** @override */
   beforeMatchWindow() {
-    return this._tryHideScrollbars();
+    // return this._tryHideScrollbars();
   }
 
   /** @override */
@@ -1100,7 +1101,8 @@ class EyesWDIO extends EyesBase {
         }
       } else {
         this._logger.verbose('hiding scrollbars of element (2)');
-        this._originalOverflow = await EyesWDIOUtils.setOverflow(this._jsExecutor, 'hidden', this._scrollRootElement);
+        const scrollRootElement = await this.getScrollRootElement();
+        this._originalOverflow = await EyesWDIOUtils.setOverflow(this._jsExecutor, 'hidden', scrollRootElement.element);
       }
 
       this._logger.verbose('switching back to original frame');
@@ -1134,7 +1136,8 @@ class EyesWDIO extends EyesBase {
         }
       } else {
         this._logger.verbose('returning overflow of element to its original value');
-        await EyesWDIOUtils.setOverflow(this._jsExecutor, this._originalOverflow, this._scrollRootElement);
+        const scrollRootElement = await this.getScrollRootElement();
+        await EyesWDIOUtils.setOverflow(this._jsExecutor, this._originalOverflow, scrollRootElement.element);
       }
       await this._driver.switchTo().frames(originalFC);
       this._logger.verbose('done restoring scrollbars.');
@@ -1211,7 +1214,13 @@ class EyesWDIO extends EyesBase {
       const fullPageImage = await fullPageCapture.getStitchedRegion(Region.EMPTY, null, this._positionProviderHandler.get());
 
       await switchTo.frames(originalFrameChain);
-      result = await EyesWDIOScreenshot.fromScreenshotType({logger: this._logger, driver: this._driver, image: fullPageImage, screenshotType: null, frameLocationInScreenshot: originalFramePosition});
+      result = await EyesWDIOScreenshot.fromScreenshotType({
+        logger: this._logger,
+        driver: this._driver,
+        image: fullPageImage,
+        screenshotType: null,
+        frameLocationInScreenshot: originalFramePosition
+      });
     } else {
       await this._ensureElementVisible(this._targetElement);
 
@@ -1235,7 +1244,12 @@ class EyesWDIO extends EyesBase {
       }
 
       this._logger.verbose('Creating screenshot object...');
-      result = await EyesWDIOScreenshot.fromScreenshotType({logger: this._logger, driver: this._driver, image: screenshotImage, isMobile});
+      result = await EyesWDIOScreenshot.fromScreenshotType({
+        logger: this._logger,
+        driver: this._driver,
+        image: screenshotImage,
+        isMobile
+      });
     }
 
     if (this.getHideCaret() && activeElement != null) {
@@ -1455,7 +1469,7 @@ class EyesWDIO extends EyesBase {
     }
 
     if (!scrollRootElement) {
-      scrollRootElement = await this.getScrollRootElement();
+      scrollRootElement = await this._driver.findElementByTagName('html');
     }
 
     return scrollRootElement;
@@ -1494,10 +1508,8 @@ class EyesWDIO extends EyesBase {
         scrollRootElement = await scrollRootElementContainer.getScrollRootElement();
 
         if (!scrollRootElement) {
-          const scrollRootSelector = scrollRootElementContainer.getScrollRootSelector();
-          if (scrollRootSelector) {
-            scrollRootElement = await this._driver.findElement(scrollRootSelector);
-          }
+          const scrollRootSelector = scrollRootElementContainer.getScrollRootSelector() || By.css('html');
+          scrollRootElement = await this._driver.findElement(scrollRootSelector);
         }
       }
     }
