@@ -2,6 +2,7 @@
 ### Fixed
 - Crop safari url bar and status bar on mobile devices (IOS). [Trello 939](https://trello.com/c/SM80YzdM)
 - Fix appium support. [Trello 1199](https://trello.com/c/Ls2aOycy)
+- Don't scroll to the top of the page when eyes.check() is running. [Trello 1337](https://trello.com/c/6puZ79sd)
 
 ## [5.8.3] - 2019-11-09 
 ### Fixed
