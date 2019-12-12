@@ -34,7 +34,7 @@ compiled/
 node_modules
 package-lock.json
 yarn.lock
-
+selenium-server
 
 #temp
 temp
@@ -42,3 +42,6 @@ temp
 
 #lib
 lib
+
+# VS code 
+.vscode
