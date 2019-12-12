@@ -5,6 +5,7 @@ const {remote} = require('webdriverio');
 const chromedriver = require('chromedriver');
 const geckodriver = require('geckodriver');
 const {Configuration, Eyes, NetHelper, StitchMode} = require('../index');
+// noinspection JSUnusedLocalSymbols
 const {
   BatchInfo,
   ConsoleLogHandler,
@@ -55,6 +56,37 @@ class Common {
       capabilities: {
         browserName: 'safari',
         version: '11.1'
+      }
+    }
+  };
+
+  static get MOBILE_IOS_SAFARI() {
+    return {
+      remoteHost: "http://127.0.0.1:4723/wd/hub",
+      hostname: "127.0.0.1",
+      port: 4723,
+      capabilities: {
+        browserName: 'Safari',
+        deviceOrientation: 'portrait',
+        deviceName: 'iPhone 11',
+        platformName: 'iOS',
+        platformVersion: '13.2',
+      }
+    }
+  };
+
+  static get MOBILE_IOS_NATIVE_APP() {
+    return {
+      remoteHost: "http://127.0.0.1:4723/wd/hub",
+      hostname: "127.0.0.1",
+      port: 4723,
+      capabilities: {
+        app: 'https://store.applitools.com/download/iOS.TestApp.app.zip',
+        browserName: '',
+        deviceOrientation: 'portrait',
+        deviceName: 'iPhone 11',
+        platformName: 'iOS',
+        platformVersion: '13.2',
       }
     }
   };

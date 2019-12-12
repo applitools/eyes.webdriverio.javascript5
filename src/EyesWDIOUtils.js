@@ -52,8 +52,12 @@ class EyesWDIOUtils {
    * @return {Promise<boolean>} {@code true} if this is a mobile device and is in landscape orientation. {@code
    *   false} otherwise.
    */
-  static isLandscapeOrientation(driver) {
-    return imageOrientationHandler.isLandscapeOrientation(driver);
+  static async isLandscapeOrientation(driver) {
+    if (EyesWDIOUtils.isMobileDevice(driver)) {
+      return imageOrientationHandler.isLandscapeOrientation(driver);
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -444,31 +448,33 @@ class EyesWDIOUtils {
   static async getViewportSizeOrDisplaySize(logger, executor) {
     logger.verbose("getViewportSizeOrDisplaySize()");
 
-    try {
-      return await EyesWDIOUtils.getViewportSize(executor);
-    } catch (e) {
-      logger.verbose("Failed to extract viewport size using Javascript:", e);
-
-      // If we failed to extract the viewport size using JS, will use the window size instead.
-      logger.verbose("Using window size as viewport size.");
-
-      /** {width:number, height:number} */
-      let {width, height} = await EyesWDIOUtils.getWindowRect(executor);
+    if (!EyesWDIOUtils.isMobileDevice(executor.remoteWebDriver)) {
       try {
-        const result = await EyesWDIOUtils.isLandscapeOrientation(executor);
-        if (result && height > width) {
-          const temp = width;
-          // noinspection JSSuspiciousNameCombination
-          width = height;
-          height = temp;
-        }
-      } catch (ignored) {
-        // Not every WebDriver supports querying for orientation.
+        return await EyesWDIOUtils.getViewportSize(executor);
+      } catch (e) {
+        logger.verbose("Failed to extract viewport size using Javascript:", e);
       }
-
-      logger.verbose(`Done! Size ${width} x ${height}`);
-      return new RectangleSize(width, height);
     }
+
+    // If we failed to extract the viewport size using JS, will use the window size instead.
+    logger.verbose("Using window size as viewport size.");
+
+    /** {width:number, height:number} */
+    let {width, height} = await EyesWDIOUtils.getWindowRect(executor);
+    try {
+      const result = await EyesWDIOUtils.isLandscapeOrientation(executor);
+      if (result && height > width) {
+        const temp = width;
+        // noinspection JSSuspiciousNameCombination
+        width = height;
+        height = temp;
+      }
+    } catch (ignored) {
+      // Not every WebDriver supports querying for orientation.
+    }
+
+    logger.verbose(`Done! Size ${width} x ${height}`);
+    return new RectangleSize(width, height);
   }
 
   /**
@@ -707,8 +713,6 @@ class EyesWDIOUtils {
    */
   static isMobileDevice(driver) {
     return !!(driver && driver.isMobile);
-
-
   }
 
   /**
