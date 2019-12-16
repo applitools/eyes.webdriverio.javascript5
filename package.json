@@ -46,8 +46,7 @@
     "shared-examples-for": "^0.1.3"
   },
   "scripts": {
-    "test": "mocha-parallel-tests --no-timeouts --max-parallel 5 \"test/Test*.js\"",
-    "test.mocha": "mocha --no-timeouts \"test/Test*.js\""
+    "test": "mocha --no-timeouts \"test/+(TestClassicApi*.js|TestFluentApi*.js|TestVisualGrid*.js)\""
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {

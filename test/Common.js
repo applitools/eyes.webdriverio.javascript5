@@ -114,7 +114,9 @@ class Common {
     // configuration.setAccessibilityValidation(AccessibilityLevel.AAA);
     this._eyes.setConfiguration(configuration);
 
-    this._eyes.setLogHandler(new ConsoleLogHandler(true));
+    if (process.env.APPLITOOLS_SHOW_LOGS) {
+      this._eyes.setLogHandler(new ConsoleLogHandler(true));
+    }
 
     this._eyes.setForceFullPageScreenshot(fps);
     this._eyes._configuration.setStitchMode(stitchMode);
@@ -185,6 +187,8 @@ class Common {
         browserOptions.path = '/';
       }
     }
+
+    browserOptions.logLevel = 'error';
 
     const that = this;
     this._browser = await remote(browserOptions);
