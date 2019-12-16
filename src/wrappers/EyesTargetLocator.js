@@ -192,7 +192,11 @@ class EyesTargetLocator extends TargetLocator {
 
       for (const frame of varArg.getFrames()) {
         this._logger.verbose('Switching to frame...');
-        await this._tsInstance.switchTo().frame(frame.getReference());
+        try {
+          await this._tsInstance.switchTo().frame(frame.getReference());
+        } catch(error) {
+          console.error(error);
+        }
         this._logger.verbose('Done!');
       }
 
