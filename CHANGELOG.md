@@ -1,3 +1,7 @@
+## [5.9.1] - 2019-12-16
+### Fixed
+- Checkpoint screenshots not captured when frame errors exist. [Trello 1197](https://trello.com/c/SLUduLu8)
+
 ## [5.9.0] - 2019-12-12
 ### Fixed
 - Crop safari url bar and status bar on mobile devices (IOS). [Trello 939](https://trello.com/c/SM80YzdM)
