@@ -21,6 +21,7 @@ const EyesWDIOUtils = require('./EyesWDIOUtils');
 const WDIOJSExecutor = require('./WDIOJSExecutor');
 const WebDriver = require('./wrappers/WebDriver');
 const {VisualGridRunner} = require('./runner/VisualGridRunner');
+const Target = require('./fluent/Target');
 
 const VERSION = require('../package.json').version;
 
@@ -96,7 +97,7 @@ class EyesVisualGrid extends EyesBase {
       this._configuration.setViewportSize(vs);
     }
 
-    if (this._configuration.getBrowsersInfo().length === 0 && this._configuration.getViewportSize()) {
+    if (this._configuration.getBrowsersInfo() && this._configuration.getViewportSize()) {
       const vs = this._configuration.getViewportSize();
       this._configuration.addBrowser(vs.getWidth(), vs.getHeight(), BrowserType.CHROME);
     }
@@ -340,6 +341,16 @@ class EyesVisualGrid extends EyesBase {
     await this.check(tag, Target.region(region).timeout(matchTimeout));
   }
 
+  /**
+   * Takes a snapshot of the application under test and matches it with the expected output.
+   *
+   * @param {String} tag An optional tag to be associated with the snapshot.
+   * @param {int} matchTimeout The amount of time to retry matching (Milliseconds).
+   * @return {Promise} A promise which is resolved when the validation is finished.
+   */
+  checkWindow(tag, matchTimeout) {
+    return this.check(tag, Target.window().timeout(matchTimeout));
+  }
 
   /**
    * @return {Promise<RectangleSize>}
