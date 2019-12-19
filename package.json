@@ -44,7 +44,7 @@
     "mocha": "^6.2.2",
     "mocha-parallel-tests": "^2.2.2",
     "shared-examples-for": "^0.1.3",
-    "@applitools/sdk-test-kit": "^1.0.5"
+    "@applitools/sdk-test-kit": "^1.0.6"
   },
   "scripts": {
     "test": "mocha --no-timeouts \"test/+(TestClassicApi*.js|TestFluentApi*.js|TestVisualGrid*.js)\"",

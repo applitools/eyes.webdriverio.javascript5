@@ -1,50 +1,73 @@
 const chromedriver = require('chromedriver');
 const {remote} = require('webdriverio');
 const {By} = require('selenium-webdriver');
-const {makeRun} = require('@applitools/sdk-test-kit')
+const {makeRun, makeResourcePool, findResourceInPool} = require('@applitools/sdk-test-kit')
 const {Eyes, BatchInfo, RectangleSize, StitchMode, VisualGridRunner, Target} = require('../../index')
 
 const sdkName = 'eyes.webdriverio.javascript5'
 const batch = new BatchInfo(`JS Coverage Tests - ${sdkName}`)
 
-async function initialize(displayName, executionMode) {
+function initialize(context) {
   let eyes
   let driver
-  driver = await remote({
-    logLevel: 'error',
-    capabilities: {
-      browserName: 'chrome',
-      'goog:chromeOptions': {
-        args: [
-          '--disable-infobars',
-          '--headless',
-        ]
-      }
-    }
-  })
-  if (executionMode.isVisualGrid) {
-    eyes = new Eyes(new VisualGridRunner())
-  } else if (executionMode.isCssStitching) {
-    eyes = new Eyes()
-    eyes.setStitchMode(StitchMode.CSS)
-  } else if (executionMode.isScrollStitching) {
-    eyes = new Eyes()
-    eyes.setStitchMode(StitchMode.SCROLL)
+
+  async function beforeAll() {
+    const resourcePool = await makeResourcePool(10, async () => {
+      const driver = await remote({
+        logLevel: 'error',
+        capabilities: {
+          browserName: 'chrome',
+          'goog:chromeOptions': {
+            args: [
+              '--headless',
+            ]
+          }
+        }
+      })
+      return { driver, isAvailable: true }
+    })
+    return { resourcePool }
   }
-  eyes.setBatch(batch)
+
+  async function afterAll(sharedContext) {
+    for (const index in sharedContext.resourcePool) {
+      await sharedContext.resourcePool[index].driver.deleteSession()
+    }
+  }
+
+  async function beforeEach() {
+    resource = await findResourceInPool(context.executionMode.resourcePool, resource => {
+      return resource.isAvailable
+    })
+    driver = resource.driver
+    resource.isAvailable = false
+    if (context.executionMode.isVisualGrid) {
+      eyes = new Eyes(new VisualGridRunner())
+    } else if (context.executionMode.isCssStitching) {
+      eyes = new Eyes()
+      eyes.setStitchMode(StitchMode.CSS)
+    } else if (context.executionMode.isScrollStitching) {
+      eyes = new Eyes()
+      eyes.setStitchMode(StitchMode.SCROLL)
+    }
+    eyes.setBatch(batch)
+  }
+
+  function afterEach() {
+    resource.isAvailable = true
+  }
 
   async function visit(url) {
     await driver.url(url)
   }
 
   async function open(options) {
-    driver = await eyes.open(
+    await eyes.open(
       driver,
       sdkName,
-      displayName,
+      context.displayName,
       RectangleSize.parse(options.viewportSize),
     )
-    return driver
   }
 
   async function check(options = {}) {
@@ -58,16 +81,10 @@ async function initialize(displayName, executionMode) {
   }
 
   async function close(options) {
-    try {
-      await driver.deleteSession()
-    } catch (error) {
-      console.error(error)
-    } finally {
-      await eyes.close(options)
-    }
+    await eyes.close(options)
   }
 
-  return {visit, open, check, close}
+  return {beforeAll, afterAll, beforeEach, afterEach, visit, open, check, close}
 }
 
 const supportedTests = [
