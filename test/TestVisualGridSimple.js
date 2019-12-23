@@ -19,7 +19,7 @@ describe('VisualGridSimple', function () {
 
   beforeEach(async () => {
     const chrome = Common.CHROME;
-    browser = await remote(chrome);
+    browser = await remote({...chrome, port: 9515, path: '/', logLevel: 'error'});
   });
 
   afterEach(async () => {
@@ -40,9 +40,6 @@ describe('VisualGridSimple', function () {
     const configuration = new Configuration();
     configuration.setTestName('Open Concurrency with Batch 2');
     configuration.setAppName('RenderingGridIntegration');
-    configuration.addBrowser(800, 600, BrowserType.CHROME);
-    configuration.addBrowser(700, 500, BrowserType.CHROME);
-    configuration.addBrowser(400, 300, BrowserType.CHROME);
     configuration.setApiKey(process.env.APPLITOOLS_API_KEY);
     eyes.setConfiguration(configuration);
     await eyes.open(browser);
@@ -53,9 +50,7 @@ describe('VisualGridSimple', function () {
 
     await eyes.check('selector', Target.region('#scroll1'));
 
-    const result = await eyes.close(false);
-
-    equal(result.isPassed(), true);
+    await eyes.getRunner().getAllTestResults();
   });
 
 });

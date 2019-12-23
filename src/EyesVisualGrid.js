@@ -1,6 +1,6 @@
 'use strict';
 
-const {makeVisualGridClient, capturePageDom} = require('@applitools/visual-grid-client');
+const {makeVisualGridClient, takeDomSnapshot} = require('@applitools/visual-grid-client');
 
 const {
   ArgumentGuard,
@@ -84,7 +84,7 @@ class EyesVisualGrid extends EyesBase {
     ArgumentGuard.notNull(this._configuration.getAppName(), 'appName');
     ArgumentGuard.notNull(this._configuration.getTestName(), 'testName');
 
-    if (!this._configuration.getViewportSize() && this._configuration.getBrowsersInfo().length > 0) {
+    if (!this._configuration.getViewportSize() && this._configuration.getBrowsersInfo()) {
       for (const browserInfo of this._configuration.getBrowsersInfo()) {
         if (browserInfo.width) {
           this._configuration.setViewportSize(new RectangleSize(browserInfo.width, browserInfo.height));
@@ -95,11 +95,6 @@ class EyesVisualGrid extends EyesBase {
     if (!this._configuration.getViewportSize()) {
       const vs = await this._driver.getDefaultContentViewportSize();
       this._configuration.setViewportSize(vs);
-    }
-
-    if (this._configuration.getBrowsersInfo() && this._configuration.getViewportSize()) {
-      const vs = this._configuration.getViewportSize();
-      this._configuration.addBrowser(vs.getWidth(), vs.getHeight(), BrowserType.CHROME);
     }
 
     if (this._runner.getConcurrentSessions()) this._configuration.setConcurrentSessions(this._runner.getConcurrentSessions());
@@ -247,19 +242,6 @@ class EyesVisualGrid extends EyesBase {
     console.log(testResultsFormatter.asFormatterString());
   }
 
-  /**
-   * @private
-   * @param {{type: string, url: string, value: string}[]} blobs
-   * @return {{type: string, url: string, value: Buffer}[]}
-   */
-  _blobsToResourceContents(blobs) {
-    return blobs.map(({url, type, value}) => ({
-      url,
-      type,
-      value: Buffer.from(value, 'base64'),
-    }));
-  }
-
   getRunner() {
     return this._runner;
   }
@@ -289,19 +271,11 @@ class EyesVisualGrid extends EyesBase {
       targetSelector = await targetSelector.getSelector(this);
     }
 
-    const pageDomResults = await capturePageDom({ executeScript: this._jsExecutor.executeScript.bind(this._jsExecutor) });
-    const {cdt, url: pageUrl, blobs, resourceUrls, frames} = pageDomResults;
+    const pageDomResults = await takeDomSnapshot({ executeScript: this._jsExecutor.executeScript.bind(this._jsExecutor) });
+    const {cdt, url: pageUrl, resourceContents, resourceUrls, frames} = pageDomResults;
 
     if (this.getCorsIframeHandle() === CorsIframeHandle.BLANK) {
       CorsIframeHandler.blankCorsIframeSrcOfCdt(cdt, frames);
-    }
-
-    const resourceContents = this._blobsToResourceContents(blobs);
-    if (frames && frames.length > 0) {
-      for (let i = 0; i < frames.length; ++i) {
-        frames[i].resourceContents = this._blobsToResourceContents(frames[i].blobs);
-        delete frames[i].blobs;
-      }
     }
 
     this._logger.verbose(`Dom extracted  (${checkSettings.toString()})   $$$$$$$$$$$$`);
