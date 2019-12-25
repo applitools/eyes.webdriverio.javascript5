@@ -39,21 +39,40 @@ async function initialize({baselineTestName, branchName, executionMode, host}) {
     )
   }
 
-  async function checkFrame({isClassicApi = false, locator, tag, matchTimeout} = {}) {
+  async function checkFrame({
+    isClassicApi = false,
+    isFully = false,
+    locator,
+    tag,
+    matchTimeout,
+  } = {}) {
     if (isClassicApi) {
-      await eyes.checkFrame(By.css(locator), matchTimeout, tag)
+      const element = await driver.findElement(By.css(locator))
+      await eyes.checkFrame(element, matchTimeout, tag)
     } else {
-      await eyes.check(tag, Target.frame(By.css(locator)).fully())
+      isFully
+        ? await eyes.check(tag, Target.frame(By.css(locator)).fully())
+        : await eyes.check(tag, Target.frame(By.css(locator)))
     }
   }
 
-  async function checkRegion({isClassicApi = false, locator, tag, matchTimeout} = {}) {
+  async function checkRegion({
+    isClassicApi = false,
+    isFully = false,
+    locator,
+    tag,
+    matchTimeout,
+  } = {}) {
     if (isClassicApi) {
-      await eyes.checkRegion(By.css(locator), matchTimeout, tag)
+      const element = await driver.findElement(By.css(locator))
+      await eyes.checkElement(element, matchTimeout, tag)
     } else {
-      await eyes.check(tag, Target.region(By.css(locator)).fully())
+      isFully
+        ? await eyes.check(tag, Target.region(By.css(locator)).fully())
+        : await eyes.check(tag, Target.region(By.css(locator)))
     }
   }
+
 
   async function checkWindow({isClassicApi = false, isFully = false, tag, matchTimeout} = {}) {
     if (isClassicApi) {
