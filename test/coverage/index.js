@@ -1,4 +1,3 @@
-const chromedriver = require('chromedriver');
 const {remote} = require('webdriverio');
 const {By} = require('selenium-webdriver');
 const {makeRunTests} = require('@applitools/sdk-test-kit')
@@ -106,9 +105,3 @@ module.exports = {
   initialize,
   supportedTests,
 }
-//const returnPromise = true
-//chromedriver.start(['--port=4444', '--url-base=wd/hub', '--silent'], returnPromise).then(() => {
-//  makeRunTests(sdkName, initialize).runTests(supportedTests).then(() => {
-//    chromedriver.stop()
-//  })
-//}).catch(console.error)
