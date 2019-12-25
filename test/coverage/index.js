@@ -104,4 +104,5 @@ module.exports = {
   name: sdkName,
   initialize,
   supportedTests,
+  options: { needsChromeDriver: true, chromeDriverOptions: ['--port=4444', '--url-base=wd/hub', '--silent'] },
 }
