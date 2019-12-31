@@ -49,7 +49,7 @@
   "scripts": {
     "test": "mocha --no-timeouts \"test/+(TestClassicApi*.js|TestFluentApi*.js|TestVisualGrid*.js)\"",
     "test:coverage": "coverage-tests run --path test/coverage/index.js",
-    "test:coverage:nuke": "coverage-tests run --nuke"
+    "test:coverage:nuke": "coverage-tests nuke"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
