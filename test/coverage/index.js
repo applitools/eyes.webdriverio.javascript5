@@ -7,12 +7,17 @@ const sdkName = 'eyes.webdriverio.javascript5'
 const batch = new BatchInfo(`JS Coverage Tests - ${sdkName}`)
 const supportedTests = require('./supported-tests')
 
-async function initialize({baselineTestName, branchName, executionMode, host}) {
+function initialize() {
   let eyes
   let driver
+  let runner
+  let baselineTestName
 
-  async function _setup() {
-    driver = await remote({
+  // TODO: add support --remote runner flag (e.g., options.host) to connect to a remote Selenium Grid
+  // Right now, wdio implicitly connects to http://localhost:4444/wd/hub
+  async function _setup(options) {
+    baselineTestName = options.baselineTestName
+    const browserOptions = {
       logLevel: 'error',
       capabilities: {
         browserName: 'chrome',
@@ -22,19 +27,22 @@ async function initialize({baselineTestName, branchName, executionMode, host}) {
           ]
         }
       }
-    })
-    eyes = executionMode.isVisualGrid ? new Eyes(new VisualGridRunner()) : new Eyes()
-    executionMode.isCssStitching ? eyes.setStitchMode(StitchMode.CSS) : undefined
-    executionMode.isScrollStitching ? eyes.setStitchMode(StitchMode.SCROLL) : undefined
+    }
+    driver = await remote(browserOptions)
+    runner = options.executionMode.isVisualGrid ? (runner = new VisualGridRunner(10)) : undefined
+    eyes = options.executionMode.isVisualGrid ? new Eyes(runner) : new Eyes()
+    options.executionMode.isCssStitching ? eyes.setStitchMode(StitchMode.CSS) : undefined
+    options.executionMode.isScrollStitching ? eyes.setStitchMode(StitchMode.SCROLL) : undefined
+    eyes.setBranchName(options.branchName)
     eyes.setBatch(batch)
   }
 
-  async function visit(url) {
-    await driver.url(url)
+  async function _cleanup() {
+    await driver.deleteSession()
   }
 
-  async function open({appName, viewportSize}) {
-    driver = await eyes.open(driver, appName, baselineTestName, RectangleSize.parse(viewportSize))
+  async function abort() {
+    await eyes.abortIfNotClosed()
   }
 
   async function checkFrame(
@@ -89,12 +97,6 @@ async function initialize({baselineTestName, branchName, executionMode, host}) {
     }
   }
 
-  const _makeRegionLocator = target => {
-    if (typeof target === 'string') return By.css(target)
-    else if (typeof target === 'number') return target
-    else return new Region(target)
-  }
-
   async function checkWindow({
     isClassicApi = false,
     isFully = false,
@@ -133,12 +135,23 @@ async function initialize({baselineTestName, branchName, executionMode, host}) {
     await eyes.close(options)
   }
 
-  async function _cleanup() {
-    await driver.deleteSession()
+  async function getAllTestResults() {
+    const resultsSummary = await runner.getAllTestResults()
+    return resultsSummary.getAllResults()
   }
 
-  async function abort() {
-    await eyes.abortIfNotClosed()
+  const _makeRegionLocator = target => {
+    if (typeof target === 'string') return By.css(target)
+    else if (typeof target === 'number') return target
+    else return new Region(target)
+  }
+
+  async function open({appName, viewportSize}) {
+    driver = await eyes.open(driver, appName, baselineTestName, RectangleSize.parse(viewportSize))
+  }
+
+  async function visit(url) {
+    await driver.url(url)
   }
 
   async function scrollDown(pixels) {
@@ -155,6 +168,8 @@ async function initialize({baselineTestName, branchName, executionMode, host}) {
   }
 
   return {
+    _setup,
+    _cleanup,
     abort,
     visit,
     open,
@@ -162,11 +177,10 @@ async function initialize({baselineTestName, branchName, executionMode, host}) {
     checkRegion,
     checkWindow,
     close,
+    getAllTestResults,
     scrollDown,
     switchToFrame,
     type,
-    _cleanup,
-    _setup,
   }
 }
 
