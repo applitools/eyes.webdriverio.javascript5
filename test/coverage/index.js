@@ -1,7 +1,7 @@
 const {remote} = require('webdriverio');
 const {By} = require('selenium-webdriver');
 const {makeRunTests} = require('@applitools/sdk-test-kit')
-const {Eyes, BatchInfo, RectangleSize, StitchMode, VisualGridRunner, Target} = require('../../index')
+const {Eyes, BatchInfo, RectangleSize, StitchMode, VisualGridRunner, Target, Region} = require('../../index')
 
 const sdkName = 'eyes.webdriverio.javascript5'
 const batch = new BatchInfo(`JS Coverage Tests - ${sdkName}`)
@@ -155,16 +155,15 @@ function initialize() {
   }
 
   async function scrollDown(pixels) {
-    await driver.execute(`window.scrollBy(0,${pixels})`)
+    await driver.executeScript(`window.scrollBy(0,${pixels})`)
   }
 
   async function switchToFrame(selector) {
-    const element = await driver.findElement(By.css(selector))
-    await driver.switchToFrame(element)
+    await driver.switchToFrame(By.css(selector))
   }
 
   async function type(selector, text) {
-    await browser.elementSendKeys(selector, text)
+    await driver.elementSendKeys(selector, text)
   }
 
   return {

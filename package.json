@@ -41,7 +41,7 @@
     "webdriverio": "^5.18.0"
   },
   "devDependencies": {
-    "@applitools/sdk-test-kit": "^1.0.15",
+    "@applitools/sdk-test-kit": "^1.0.16",
     "mocha": "^6.2.2",
     "mocha-parallel-tests": "^2.2.2",
     "shared-examples-for": "^0.1.3"
