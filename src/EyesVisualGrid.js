@@ -22,6 +22,7 @@ const WDIOJSExecutor = require('./WDIOJSExecutor');
 const WebDriver = require('./wrappers/WebDriver');
 const {VisualGridRunner} = require('./runner/VisualGridRunner');
 const Target = require('./fluent/Target');
+const FrameChain = require('./frames/FrameChain');
 
 const VERSION = require('../package.json').version;
 
