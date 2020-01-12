@@ -80,6 +80,7 @@ class EyesWDIO extends EyesBase {
     /** @type {EyesRunner} */ this._runner = runner;
 
     this._runner._eyesInstances.push(this)
+    this._runner.makeGetRenderingInfo(this._serverConnector.renderInfo.bind(this._serverConnector))
 
     /** @type {EyesWebDriver} */
     this._driver = undefined;
@@ -1735,6 +1736,11 @@ class EyesWDIO extends EyesBase {
    */
   getSendDom() {
     return !EyesWDIOUtils.isMobileDevice(this._driver.remoteWebDriver) && super.getSendDom();
+  }
+
+  async getAndSaveRenderingInfo() {
+    const renderingInfo = await this._runner.getRenderingInfoWithCache()
+    this._serverConnector.setRenderingInfo(renderingInfo)
   }
 
 }
