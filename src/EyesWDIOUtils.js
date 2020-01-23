@@ -712,7 +712,7 @@ class EyesWDIOUtils {
    * @return {boolean}
    */
   static isMobileDevice(driver) {
-    return !!(driver && driver.isMobile);
+    return !!(driver && driver.isMobile && !driver.capabilities.browserName);
   }
 
   /**
