@@ -1,3 +1,7 @@
+## [5.9.6]
+
+- fixed image cropping on mobile Safari so it doesn't capture the browser nav [Trello 178](https://trello.com/c/yiPcT5Ks)
+
 ## [5.9.1] - 2019-12-16
 ### Fixed
 - Checkpoint screenshots not captured when frame errors exist. [Trello 1197](https://trello.com/c/SLUduLu8)
