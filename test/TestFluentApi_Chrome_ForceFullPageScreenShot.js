@@ -14,10 +14,10 @@ platforms.forEach(function (platform) {
   describe(appName, function () {
 
     before(function () {
-      test.beforeTest({fps: true});
+      return test.beforeTest({fps: true});
     });
 
-    beforeEach(function () {
+    beforeEach(async function () {
       return test.beforeEachTest({
         appName: appName,
         testName: this.currentTest.title,
@@ -31,7 +31,7 @@ platforms.forEach(function (platform) {
     });
 
     after(function () {
-      test.afterTest();
+      return test.afterTest();
     });
 
     TestFluentApi.shouldBehaveLike('TestFluentApi', test);

@@ -3,8 +3,7 @@
 const chromedriver = require('chromedriver');
 const {remote} = require('webdriverio');
 const {equal} = require('assert');
-const {BatchInfo, Region, CorsIframeHandle} = require('@applitools/eyes-sdk-core');
-const {Eyes, Target, VisualGridRunner, BrowserType, Configuration} = require('../index');
+const {Eyes, Target, VisualGridRunner, BrowserType, Configuration, Region, BatchInfo, CorsIframeHandle} = require('../index');
 
 const Common = require('./Common');
 
@@ -14,7 +13,7 @@ describe('VisualGridSimple', function () {
   this.timeout(5 * 60 * 1000);
 
   before(async function () {
-    chromedriver.start();
+    await chromedriver.start(undefined, true);
   });
 
   beforeEach(async () => {
@@ -28,6 +27,7 @@ describe('VisualGridSimple', function () {
 
   after(async function () {
     chromedriver.stop();
+    await new Promise(res => setTimeout(res, 2000))
   });
 
   it('VisualGridTestPage', async function () {
