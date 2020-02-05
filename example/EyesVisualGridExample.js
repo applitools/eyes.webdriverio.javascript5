@@ -13,7 +13,8 @@ const {
   ScreenOrientation,
   BatchInfo,
   AccessibilityLevel,
-  AccessibilityRegionType
+  AccessibilityRegionType,
+  ConsoleLogHandler
 } = require('../index'); // should be replaced to '@applitools/eyes-webdriverio'
 
 (async () => {
@@ -23,7 +24,10 @@ const {
   const chrome = {
     capabilities: {
       browserName: 'chrome'
-    }
+    },
+    path: '/',
+    port: 9515,
+    logLevel: 'error'
   };
   const browser = await remote(chrome);
 
@@ -33,21 +37,23 @@ const {
   try {
     const batchInfo = new BatchInfo();
     batchInfo.setSequenceName('alpha sequence');
+    batchInfo.setNotifyOnCompletion(true)
 
     const configuration = new Configuration();
     configuration.setBatch(batchInfo);
     configuration.setAppName('Eyes Examples');
     configuration.setTestName('My first Javascript test!');
     configuration.addBrowser(800, 600, BrowserType.CHROME);
-    configuration.addBrowser(500, 400, BrowserType.FIREFOX);
-    configuration.addBrowser(500, 400, BrowserType.IE_11);
-    configuration.addDeviceEmulation(DeviceName.iPhone_4, ScreenOrientation.PORTRAIT);
+    // configuration.addBrowser(500, 400, BrowserType.FIREFOX);
+    // configuration.addBrowser(500, 400, BrowserType.IE_11);
+    // configuration.addDeviceEmulation(DeviceName.iPhone_4, ScreenOrientation.PORTRAIT);
     // configuration.setProxy('http://localhost:8888');
-    configuration.setApiKey(process.env.APPLITOOLS_FABRIC_API_KEY);
-    configuration.setServerUrl('https://eyesfabric4eyes.applitools.com');
+    // configuration.setApiKey(process.env.APPLITOOLS_FABRIC_API_KEY);
+    // configuration.setServerUrl('https://eyesfabric4eyes.applitools.com');
     // set accessibility validation level
-    configuration.setAccessibilityValidation(AccessibilityLevel.AA);
+    // configuration.setAccessibilityValidation(AccessibilityLevel.AA);
     eyes.setConfiguration(configuration);
+    eyes.setLogHandler(new ConsoleLogHandler())
 
     const driver = await eyes.open(browser);
 
@@ -55,16 +61,16 @@ const {
     await driver.url('https://applitools.com/helloworld');
 
     // Visual checkpoint #1.
-    await eyes.check('Main Page', Target.window()
+    await eyes.check('Main Page', Target.window())
         // set accessibility region
-        .accessibilityRegion(By.css('button'), AccessibilityRegionType.RegularText));
+        // .accessibilityRegion(By.css('button'), AccessibilityRegionType.RegularText));
 
     // Click the "Click me!" button.
-    const b = await browser.$('button');
-    await b.click();
+    // const b = await browser.$('button');
+    // await b.click();
 
     // Visual checkpoint #2.
-    await eyes.check('Click!', Target.window());
+    // await eyes.check('Click!', Target.window());
 
     // End the test.
     // const results = await eyes.close(); // will return only first TestResults, but as we have two browsers, we need more result
