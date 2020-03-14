@@ -70,10 +70,10 @@ class EyesWDIO extends EyesBase {
   /**
    * Creates a new (possibly disabled) Eyes instance that interacts with the Eyes Server at the specified url.
    *
-   * @param {String} [serverUrl] The Eyes server URL.
-   * @param {Boolean} [isDisabled=false] Set to true to disable Applitools Eyes and use the webdriver directly.
+   * @param {String} [serverUrl] - The Eyes server URL.
+   * @param {Boolean} [isDisabled=false] - Set to true to disable Applitools Eyes and use the webdriver directly.
    * @param {ClassicRunner} [runner] - Set shared ClassicRunner if you want to group results.
-   **/
+   */
   constructor(serverUrl, isDisabled = false, runner = new ClassicRunner()) {
     super(serverUrl, isDisabled, new Configuration());
     /** @type {EyesRunner} */ this._runner = runner;
@@ -203,9 +203,9 @@ class EyesWDIO extends EyesBase {
   /**
    * Takes a snapshot of the application under test and matches it with the expected output.
    *
-   * @param {String} tag An optional tag to be associated with the snapshot.
-   * @param {int} matchTimeout The amount of time to retry matching (Milliseconds).
-   * @return {Promise} A promise which is resolved when the validation is finished.
+   * @param {String} tag - An optional tag to be associated with the snapshot.
+   * @param {int} matchTimeout - The amount of time to retry matching (Milliseconds).
+   * @return {Promise} - A promise which is resolved when the validation is finished.
    */
   checkWindow(tag, matchTimeout) {
     return this.check(tag, Target.window().timeout(matchTimeout));
@@ -215,11 +215,11 @@ class EyesWDIO extends EyesBase {
   /**
    * Matches the frame given as parameter, by switching into the frame and using stitching to get an image of the frame.
    *
-   * @param {Integer|String|By|WebElement|EyesWebElement} element The element which is the frame to switch to. (as
+   * @param {Integer|String|By|WebElement|EyesWebElement} element - The element which is the frame to switch to. (as
    * would be used in a call to driver.switchTo().frame() ).
-   * @param {int|null} matchTimeout The amount of time to retry matching (milliseconds).
-   * @param {String} tag An optional tag to be associated with the match.
-   * @return {Promise} A promise which is resolved when the validation is finished.
+   * @param {int|null} matchTimeout - The amount of time to retry matching (milliseconds).
+   * @param {String} tag - An optional tag to be associated with the match.
+   * @return {Promise} - A promise which is resolved when the validation is finished.
    */
   checkFrame(element, matchTimeout, tag) {
     return this.check(tag, Target.frame(element).timeout(matchTimeout).fully());
@@ -229,10 +229,10 @@ class EyesWDIO extends EyesBase {
   /**
    * Visually validates a region in the screenshot.
    *
-   * @param {By|Region} region The WebDriver selector used for finding the region to validate.
-   * @param {String} tag An optional tag to be associated with the screenshot.
-   * @param {int} matchTimeout The amount of time to retry matching.
-   * @return {Promise} A promise which is resolved when the validation is finished.
+   * @param {By|Region} region - The WebDriver selector used for finding the region to validate.
+   * @param {String} tag - An optional tag to be associated with the screenshot.
+   * @param {int} matchTimeout - The amount of time to retry matching.
+   * @return {Promise} - A promise which is resolved when the validation is finished.
    */
   checkRegion(region, tag, matchTimeout) {
     return this.check(tag, Target.region(region).timeout(matchTimeout));
@@ -242,10 +242,10 @@ class EyesWDIO extends EyesBase {
   /**
    * Visually validates a region in the screenshot.
    *
-   * @param {By} by The WebDriver selector used for finding the region to validate.
-   * @param {String} tag An optional tag to be associated with the screenshot.
-   * @param {int} matchTimeout The amount of time to retry matching.
-   * @return {Promise} A promise which is resolved when the validation is finished.
+   * @param {By} by - The WebDriver selector used for finding the region to validate.
+   * @param {String} tag - An optional tag to be associated with the screenshot.
+   * @param {int} matchTimeout - The amount of time to retry matching.
+   * @return {Promise} - A promise which is resolved when the validation is finished.
    */
   checkRegionBy(by, tag, matchTimeout) {
     return this.checkRegion(by, tag, matchTimeout);
@@ -255,12 +255,12 @@ class EyesWDIO extends EyesBase {
   /**
    * Switches into the given frame, takes a snapshot of the application under test and matches a region specified by the given selector.
    *
-   * @param {String} frameNameOrId The name or id of the frame to switch to. (as would be used in a call to driver.switchTo().frame()).
-   * @param {By} selector A Selector specifying the region to check.
-   * @param {int|null} matchTimeout The amount of time to retry matching. (Milliseconds)
-   * @param {String} tag An optional tag to be associated with the snapshot.
-   * @param {boolean} stitchContent If {@code true}, stitch the internal content of the region (i.e., perform {@link #checkElement(By, int, String)} on the region.
-   * @return {Promise} A promise which is resolved when the validation is finished.
+   * @param {String} frameNameOrId - The name or id of the frame to switch to. (as would be used in a call to driver.switchTo().frame()).
+   * @param {By} selector - A Selector specifying the region to check.
+   * @param {int|null} matchTimeout - The amount of time to retry matching. (Milliseconds)
+   * @param {String} tag - An optional tag to be associated with the snapshot.
+   * @param {boolean} stitchContent - If {@code true}, stitch the internal content of the region (i.e., perform {@link #checkElement(By, int, String)} on the region.
+   * @return {Promise} - A promise which is resolved when the validation is finished.
    */
   checkRegionInFrame(frameNameOrId, selector, matchTimeout, tag, stitchContent) {
     return this.check(tag, Target.region(selector, frameNameOrId).timeout(matchTimeout).stitchContent(stitchContent));
@@ -271,8 +271,8 @@ class EyesWDIO extends EyesBase {
   /**
    *
    * @param {By} selector
-   * @param matchTimeout
-   * @param tag
+   * @param {int} matchTimeout
+   * @param {String} tag
    * @returns {Promise.<*>}
    */
   checkElementBySelector(selector, matchTimeout, tag) {
@@ -281,7 +281,7 @@ class EyesWDIO extends EyesBase {
 
   /**
    *
-   * @param name
+   * @param {string} name
    * @param {WebdriverioCheckSettings} checkSettings
    * @returns {Promise.<*>}
    */
@@ -765,9 +765,9 @@ class EyesWDIO extends EyesBase {
   /**
    * Adds a mouse trigger.
    *
-   * @param {MouseTrigger.MouseAction} action  Mouse action.
-   * @param {Region} control The control on which the trigger is activated (context relative coordinates).
-   * @param {Location} cursor  The cursor's position relative to the control.
+   * @param {MouseTrigger.MouseAction} action  - Mouse action.
+   * @param {Region} control - The control on which the trigger is activated (context relative coordinates).
+   * @param {Location} cursor  - The cursor's position relative to the control.
    */
   async addMouseTrigger(action, control, cursor) {
     if (this._configuration.getIsDisabled()) {
@@ -793,8 +793,8 @@ class EyesWDIO extends EyesBase {
   /**
    * Adds a mouse trigger.
    *
-   * @param {MouseTrigger.MouseAction} action  Mouse action.
-   * @param {WebElement} element The WebElement on which the click was called.
+   * @param {MouseTrigger.MouseAction} action  - Mouse action.
+   * @param {WebElement} element - The WebElement on which the click was called.
    * @return {Promise}
    */
   async addMouseTriggerForElement(action, element) {
@@ -825,8 +825,8 @@ class EyesWDIO extends EyesBase {
   /**
    * Adds a keyboard trigger.
    *
-   * @param {Region} control The control on which the trigger is activated (context relative coordinates).
-   * @param {String} text  The trigger's text.
+   * @param {Region} control - The control on which the trigger is activated (context relative coordinates).
+   * @param {String} text  - The trigger's text.
    */
   addTextTrigger(control, text) {
     if (this.getIsDisabled()) {
@@ -851,8 +851,8 @@ class EyesWDIO extends EyesBase {
   /**
    * Adds a keyboard trigger.
    *
-   * @param {EyesWebElement} element The element for which we sent keys.
-   * @param {String} text  The trigger's text.
+   * @param {EyesWebElement} element - The element for which we sent keys.
+   * @param {String} text  - The trigger's text.
    * @return {Promise}
    */
   async addTextTriggerForElement(element, text) {
@@ -956,8 +956,8 @@ class EyesWDIO extends EyesBase {
 
 
   /**
-   * @param {EyesJsExecutor} executor The executor to use.
-   * @return {Promise.<RectangleSize>} The viewport size of the current context, or the display size if the viewport size cannot be retrieved.
+   * @param {EyesJsExecutor} executor - The executor to use.
+   * @return {Promise.<RectangleSize>} - The viewport size of the current context, or the display size if the viewport size cannot be retrieved.
    */
   static getViewportSize(executor) {
     return EyesWDIOUtils.getViewportSizeOrDisplaySize(this._logger, executor);
@@ -967,8 +967,8 @@ class EyesWDIO extends EyesBase {
   /**
    * Set the viewport size using the driver. Call this method if for some reason you don't want to call {@link #open(WebDriver, String, String)} (or one of its variants) yet.
    *
-   * @param {EyesWebDriver} driver The driver to use for setting the viewport.
-   * @param {RectangleSize} viewportSize The required viewport size.
+   * @param {EyesWebDriver} driver - The driver to use for setting the viewport.
+   * @param {RectangleSize} viewportSize - The required viewport size.
    * @return {Promise}
    */
   static setViewportSize(driver, viewportSize) {
@@ -990,7 +990,7 @@ class EyesWDIO extends EyesBase {
     const elementSize = await element.getSize();
     const point = await element.getLocation();
     return new Region(point.x, point.y, elementSize.width, elementSize.height);
-  };
+  }
 
 
   /**
@@ -1408,7 +1408,7 @@ class EyesWDIO extends EyesBase {
     }).catch(() => {
       return null;
     });
-  };
+  }
 
 
   // noinspection JSUnusedGlobalSymbols
@@ -1417,13 +1417,13 @@ class EyesWDIO extends EyesBase {
    */
   getBaseAgentId() {
     return `eyes.webdriverio/${VERSION}`;
-  };
+  }
 
 
   //noinspection JSUnusedGlobalSymbols
   /**
    * Set the failure report.
-   * @param {FailureReports} mode Use one of the values in FailureReports.
+   * @param {FailureReports} mode - Use one of the values in FailureReports.
    */
   setFailureReport(mode) {
     if (mode === FailureReports.IMMEDIATE) {
@@ -1432,12 +1432,12 @@ class EyesWDIO extends EyesBase {
     }
 
     EyesBase.prototype.setFailureReport.call(this, mode);
-  };
+  }
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * Set the image rotation degrees.
-   * @param degrees The amount of degrees to set the rotation to.
+   * @param {int} degrees - The amount of degrees to set the rotation to.
    * @deprecated use {@link setRotation} instead
    */
   setForcedImageRotation(degrees) {
@@ -1447,7 +1447,7 @@ class EyesWDIO extends EyesBase {
   // noinspection JSUnusedGlobalSymbols
   /**
    * Get the rotation degrees.
-   * @return {number} The rotation degrees.
+   * @return {number} - The rotation degrees.
    * @deprecated use {@link getRotation} instead
    */
   getForcedImageRotation() {
@@ -1518,7 +1518,7 @@ class EyesWDIO extends EyesBase {
   }
 
   /**
-   * @param {ImageRotation} rotation The image rotation data.
+   * @param {ImageRotation} rotation - The image rotation data.
    */
   setRotation(rotation) {
     this._rotation = rotation;
@@ -1534,7 +1534,7 @@ class EyesWDIO extends EyesBase {
     }
 
     return this.getRemoteWebDriver().sessionId;
-  };
+  }
 
 
   async getTitle() {
@@ -1550,7 +1550,7 @@ class EyesWDIO extends EyesBase {
     }
 
     return '';
-  };
+  }
 
   getRemoteWebDriver() {
     return this._driver.webDriver.remoteWebDriver;
@@ -1560,7 +1560,7 @@ class EyesWDIO extends EyesBase {
   /**
    * Forces a full page screenshot (by scrolling and stitching) if the browser only supports viewport screenshots).
    *
-   * @param {boolean} shouldForce Whether to force a full page screenshot or not.
+   * @param {boolean} shouldForce - Whether to force a full page screenshot or not.
    */
   setForceFullPageScreenshot(shouldForce) {
     this._configuration.setForceFullPageScreenshot(shouldForce);
@@ -1568,7 +1568,7 @@ class EyesWDIO extends EyesBase {
 
   //noinspection JSUnusedGlobalSymbols
   /**
-   * @return {boolean} Whether Eyes should force a full page screenshot.
+   * @return {boolean} - Whether Eyes should force a full page screenshot.
    */
   getForceFullPageScreenshot() {
     return this._configuration.getForceFullPageScreenshot();
@@ -1598,7 +1598,7 @@ class EyesWDIO extends EyesBase {
    * Sets the time to wait just before taking a screenshot (e.g., to allow positioning to stabilize when performing a
    * full page stitching).
    *
-   * @param {number} waitBeforeScreenshots The time to wait (Milliseconds). Values smaller or equal to 0, will cause the
+   * @param {number} waitBeforeScreenshots - The time to wait (Milliseconds). Values smaller or equal to 0, will cause the
    *   default value to be used.
    */
   setWaitBeforeScreenshots(waitBeforeScreenshots) {
@@ -1611,7 +1611,7 @@ class EyesWDIO extends EyesBase {
 
 // noinspection JSUnusedGlobalSymbols
   /**
-   * @return {number} The time to wait just before taking a screenshot.
+   * @return {number} - The time to wait just before taking a screenshot.
    */
   getWaitBeforeScreenshots() {
     return this._waitBeforeScreenshots;
@@ -1619,7 +1619,7 @@ class EyesWDIO extends EyesBase {
 
 
   /**
-   * @return {PositionProvider} The currently set position provider.
+   * @return {PositionProvider} - The currently set position provider.
    */
   getElementPositionProvider() {
     return this._elementPositionProvider ? this._elementPositionProvider : this.getPositionProvider();
@@ -1633,14 +1633,14 @@ class EyesWDIO extends EyesBase {
   }
 
   /**
-   * @return {int} Returns the stitching overlap in pixels.
+   * @return {int} - Returns the stitching overlap in pixels.
    */
   getStitchOverlap() {
     return this._stitchingOverlap;
   }
 
   /**
-   * @return {number} The device pixel ratio, or {@link #UNKNOWN_DEVICE_PIXEL_RATIO} if the DPR is not known yet or if it wasn't possible to extract it.
+   * @return {number} - The device pixel ratio, or {@link #UNKNOWN_DEVICE_PIXEL_RATIO} if the DPR is not known yet or if it wasn't possible to extract it.
    */
   getDevicePixelRatio() {
     return this._devicePixelRatio;
@@ -1658,7 +1658,7 @@ class EyesWDIO extends EyesBase {
    * Set the type of stitching used for full page screenshots. When the page includes fixed position header/sidebar, use {@link StitchMode#CSS}.
    * Default is {@link StitchMode#SCROLL}.
    *
-   * @param {StitchMode} mode The stitch mode to set.
+   * @param {StitchMode} mode - The stitch mode to set.
    */
   setStitchMode(mode) {
     this._logger.verbose(`setting stitch mode to ${mode}`);
@@ -1673,7 +1673,7 @@ class EyesWDIO extends EyesBase {
   /**
    * Hide the scrollbars when taking screenshots.
    *
-   * @param {boolean} shouldHide Whether to hide the scrollbars or not.
+   * @param {boolean} shouldHide - Whether to hide the scrollbars or not.
    */
   setHideScrollbars(shouldHide) {
     this._hideScrollbars = shouldHide;
@@ -1719,10 +1719,15 @@ class EyesWDIO extends EyesBase {
     return this._configuration;
   }
 
+  /**
+    * @param {string} apiKey
+    */
   setApiKey(apiKey) {
     this._configuration.setApiKey(apiKey);
   }
-
+  /**
+    * @return {string}
+    */
   getApiKey() {
     return this._configuration.getApiKey();
   }
@@ -1738,10 +1743,10 @@ class EyesWDIO extends EyesBase {
 
 /**
  * @private
- * @param that
- * @param positionProvider
- * @param frameChain
- * @param switchTo
+ * @param {TBDtype} that
+ * @param {TBDtype} positionProvider
+ * @param {TBDtype} frameChain
+ * @param {TBDtype} switchTo
  * @return {Promise}
  */
 async function ensureFrameVisibleLoop(that, positionProvider, frameChain, switchTo) {
